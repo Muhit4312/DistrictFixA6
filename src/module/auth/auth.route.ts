@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { AuthController } from "./auth.controller";
+import { validateRequest } from "../../middleware/zodValidationRequest";
+import { UserValidation } from "./auth.validation";
 
 const router = Router();
 
-router.post("/register", AuthController.registerCustomer);
-router.post("/verify-email", AuthController.verifyCustomerEmail);
-router.post("/login", AuthController.loginUser);
+router.post("/register",validateRequest(UserValidation.CustomerRegistrationZodSchema), AuthController.registerCustomer);
+router.post("/verify-email",validateRequest(UserValidation.CustomerVerifyZodSchema), AuthController.verifyCustomerEmail);
+router.post("/login",validateRequest(UserValidation.loginZodSchema), AuthController.loginUser);
 router.post("/google", AuthController.googleLogin);
 
 export const AuthRoutes = router;
