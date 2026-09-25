@@ -24,8 +24,8 @@ const config = {
 	doctor_name: process.env.DOCTOR_NAME!,
 	doctor_email: process.env.DOCTOR_EMAIL!,
 	doctor_password: process.env.DOCTOR_PASSWORD!,
-	radis_user : process.env.RADIS_USER!,
-	radis_password : process.env.RADIS_PASSWORD!,
+	radis_user: process.env.RADIS_USER!,
+	radis_password: process.env.RADIS_PASSWORD!,
 	radis_host: process.env.RADIS_HOST!,
 	radis_port: process.env.RADIS_PORT!,
 
@@ -35,16 +35,12 @@ const config = {
 	cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
 	cloudinary_api_key: process.env.CLOUDINARY_API_KEY!,
 	cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET!,
-	bkash_base_url : process.env.BKASH_BASE_URL!,
-	bkash_username : process.env.BKASH_USERNAME!,
-	bkash_password : process.env.BKASH_PASSWORD!,
-	bkash_app_key : process.env.BKASH_APP_KEY!,
-	bkash_app_secret : process.env.BKASH_APP_SECRET!,
-	bkash_callbak_url : process.env.BKASH_CALLBACK_URL!,
-	
+	bkash_base_url: process.env.BKASH_BASE_URL!,
+	bkash_username: process.env.BKASH_USERNAME!,
+	bkash_password: process.env.BKASH_PASSWORD!,
+	bkash_app_key: process.env.BKASH_APP_KEY!,
+	bkash_app_secret: process.env.BKASH_APP_SECRET!,
+	bkash_callbak_url: process.env.BKASH_CALLBACK_URL!,
 };
 
 export default config;
-
-
-

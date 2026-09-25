@@ -14,7 +14,7 @@ enum UserStatus {
   SUSPENDED
 }
 
-enum authProvider {
+enum AuthProvider {
   CREDENTIALS
   GOOGLE
 }

@@ -1,12 +1,15 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express, { type Application, type Request, type Response } from "express";
+import express, {
+	type Application,
+	type Request,
+	type Response,
+} from "express";
 import httpStatus from "http-status";
 import config from "./config/env.config";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import { notFound } from "./middleware/notFound";
 import { AuthRoutes } from "./module/auth/auth.route";
-
 
 const app: Application = express();
 
@@ -24,9 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-
-app.use("/api/v1/auth", AuthRoutes)
-
+app.use("/api/v1/auth", AuthRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
 	res.status(httpStatus.OK).json({
@@ -35,7 +36,7 @@ app.get("/", async (req: Request, res: Response) => {
 	});
 });
 
- app.use(globalErrorHandler);
- app.use(notFound);
+app.use(globalErrorHandler);
+app.use(notFound);
 
 export default app;

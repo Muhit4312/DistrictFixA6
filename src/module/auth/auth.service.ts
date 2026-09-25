@@ -1,19 +1,25 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
-import { ILoginUserPayload, IRegisterUserPayload, IRegisterVerifyEmailPayload } from "./auth.interface";
+import type {
+	IGoogleLoginPayload,
+	ILoginUserPayload,
+	IRegisterUserPayload,
+	IRegisterVerifyEmailPayload,
+} from "./auth.interface";
 import crypto from "crypto";
 import { RadisClient } from "../../lib/radis";
 import path from "path";
 import { transporter } from "../../lib/nodemailer";
 import config from "../../config/env.config";
-import ejs from "ejs"
-import { Role, UserStatus } from "../../../generated/prisma/enums";
+import ejs from "ejs";
+import {  AuthProvider, Role, UserStatus } from "../../../generated/prisma/enums";
 import { jwtUtils } from "../../utils/jwt";
-import { SignOptions } from "jsonwebtoken";
-
+import type { SignOptions } from "jsonwebtoken";
+import { googleClient } from "../../lib/googleAuth";
+import { TokenPayload } from "google-auth-library";
 
 const registerCustomer = async (payload: IRegisterUserPayload) => {
-	const { name, password} = payload;
+	const { name, password } = payload;
 	const email = payload.email.trim().toLowerCase();
 
 	const isUserExists = await prisma.user.findUnique({
@@ -78,8 +84,6 @@ const registerCustomer = async (payload: IRegisterUserPayload) => {
 	});
 };
 
-
-
 const verifyCustomerEmail = async (payload: IRegisterVerifyEmailPayload) => {
 	const email = payload.email.trim().toLowerCase();
 	const otp = payload.otp;
@@ -96,8 +100,8 @@ const verifyCustomerEmail = async (payload: IRegisterVerifyEmailPayload) => {
 		throw new Error("User is blocked!");
 	}
 	if (isUserExist?.status === "SUSPENDED") {
-	throw new Error("User is suspended!");
-    }
+		throw new Error("User is suspended!");
+	}
 	if (isUserExist?.isDeleted || isUserExist?.status === "DELETED") {
 		throw new Error("User is deleted!");
 	}
@@ -134,9 +138,7 @@ const verifyCustomerEmail = async (payload: IRegisterVerifyEmailPayload) => {
 			status: UserStatus.ACTIVE,
 			emailVerified: true,
 			profile: {
-				create: {
-					
-				},
+				create: {},
 			},
 		},
 		omit: { password: true },
@@ -212,11 +214,11 @@ const loginUser = async (payload: ILoginUserPayload) => {
 		throw new Error("User is deleted!");
 	}
 
-	// if (user.password === null && user.googleId !== null) {
-	// 	throw new Error(
-	// 		"User already has account with google. Try to login with google.",
-	// 	);
-	// }
+	if (user.password === null && user.googleId !== null) {
+		throw new Error(
+			"User already has account with google. Try to login with google.",
+		);
+	}
 
 	const isPasswordMatched = await bcrypt.compare(
 		password,
@@ -252,12 +254,137 @@ const loginUser = async (payload: ILoginUserPayload) => {
 	};
 };
 
+const googleLogin = async (payload: IGoogleLoginPayload) => {
+	let googleIdTokenPayload: TokenPayload | null | undefined = null;
+	try {
+		const ticket = await googleClient.verifyIdToken({
+			idToken: payload.idToken,
+			audience: config.google_client_id,
+		});
 
+		googleIdTokenPayload = ticket.getPayload();
+	} catch (error) {
+		console.log("Google ID Token Verification Failed", error);
+		throw new Error("Invalid Or Expired Id Token");
+	}
 
+	if (!googleIdTokenPayload) {
+		throw new Error("Invalid Or Expired Id Token");
+	}
 
+	if (!googleIdTokenPayload?.email) {
+		throw new Error("Invalid Google User");
+	}
+	if (!googleIdTokenPayload?.name) {
+		throw new Error("User Name Not Found!");
+	}
+
+	const ifCustomerExistWithGoogleAuth = await prisma.user.findUnique({
+		where: {
+			email: googleIdTokenPayload.email,
+			role: Role.CUSTOMER,
+			googleId: googleIdTokenPayload.sub,
+		},
+	});
+
+	let user = ifCustomerExistWithGoogleAuth;
+
+	if (!ifCustomerExistWithGoogleAuth) {
+		const ifCustomerExistWithCredential = await prisma.user.findUnique({
+			where: {
+				email: googleIdTokenPayload.email,
+				role: Role.CUSTOMER,
+				authProvider: AuthProvider.CREDENTIALS,
+			},
+		});
+
+		if (ifCustomerExistWithCredential) {
+			if (!ifCustomerExistWithCredential.emailVerified) {
+				throw new Error("Email Not Verified.");
+			}
+			if (ifCustomerExistWithCredential.status === UserStatus.BLOCKED) {
+				throw new Error("User is blocked!");
+			}
+			if (ifCustomerExistWithCredential.status === UserStatus.SUSPENDED) {
+				throw new Error("User is suspended!");
+			}
+			if (
+				ifCustomerExistWithCredential.status === UserStatus.DELETED ||
+				ifCustomerExistWithCredential.isDeleted
+			) {
+				throw new Error("User is deleted!");
+			}
+
+			user = await prisma.user.update({
+				where: {
+					id: ifCustomerExistWithCredential.id,
+				},
+				data: {
+					googleId: googleIdTokenPayload.sub,
+				},
+			});
+		} else {
+			user = await prisma.user.create({
+				data: {
+					name: googleIdTokenPayload.name,
+					email: googleIdTokenPayload.email,
+					role: Role.CUSTOMER,
+					googleId: googleIdTokenPayload.sub,
+					authProvider: AuthProvider.GOOGLE,
+					emailVerified: true,
+					imageUrl: googleIdTokenPayload.picture ?? "",
+					profile: {
+						create: {
+							
+						},
+					},
+				},
+			});
+		}
+	}
+
+	if (!user) {
+		throw new Error("User not found!");
+	}
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new Error("User is blocked!");
+	}
+	if (user.status === UserStatus.SUSPENDED) {
+		throw new Error("User is blocked!");
+	}
+	if (user.status === UserStatus.DELETED || user.isDeleted) {
+		throw new Error("User is deleted!");
+	}
+
+	const jwtPayload = {
+		userId: user.id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+	};
+
+	const accessToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_access_secret,
+		config.jwt_access_expires_in as SignOptions,
+	);
+
+	const refreshToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_refresh_secret,
+		config.jwt_refresh_expires_in as SignOptions,
+	);
+
+	return {
+		accessToken,
+		refreshToken,
+	};
+};
 
 export const AuthServices = {
-    registerCustomer,
-    verifyCustomerEmail,
-	loginUser
-}
+	registerCustomer,
+	verifyCustomerEmail,
+	loginUser,
+	googleLogin
+};

@@ -1,18 +1,19 @@
 export interface IRegisterUserPayload {
-    name: string;
+	name: string;
 	email: string;
 	password: string;
 }
 
 export interface IRegisterVerifyEmailPayload {
-	
 	email: string;
-	otp: string
-	
-	
+	otp: string;
 }
 
 export interface ILoginUserPayload {
 	email: string;
 	password: string;
+}
+
+export interface IGoogleLoginPayload {
+	idToken: string
 }
