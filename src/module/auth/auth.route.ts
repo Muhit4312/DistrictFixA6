@@ -9,5 +9,6 @@ router.post("/register",validateRequest(UserValidation.CustomerRegistrationZodSc
 router.post("/verify-email",validateRequest(UserValidation.CustomerVerifyZodSchema), AuthController.verifyCustomerEmail);
 router.post("/login",validateRequest(UserValidation.loginZodSchema), AuthController.loginUser);
 router.post("/google", AuthController.googleLogin);
+router.post("/forgot-password", validateRequest(UserValidation.forgotPasswordZodSchema), AuthController.forgotPassword);
 
 export const AuthRoutes = router;

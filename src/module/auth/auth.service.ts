@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
 import type {
+	IForgotPasswordPayload,
 	IGoogleLoginPayload,
 	ILoginUserPayload,
 	IRegisterUserPayload,
@@ -382,9 +383,69 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 	};
 };
 
+const forgotPassword = async (payload: IForgotPasswordPayload) => {
+	const { email } = payload;
+	const isUserExist = await prisma.user.findUnique({
+		where: {
+			email,
+		},
+	});
+
+	if (!isUserExist) {
+		throw new Error("User does not exist");
+	}
+	if (!isUserExist.emailVerified) {
+		throw new Error("User does not Verified");
+	}
+
+	if (isUserExist.status === "BLOCKED") {
+		throw new Error("User is blocked!");
+	}
+	if (isUserExist.status === "SUSPENDED") {
+		throw new Error("User is suspended!");
+	}
+	if (isUserExist.isDeleted || isUserExist.status === "DELETED") {
+		throw new Error("User is deleted!");
+	}
+
+	if (isUserExist.googleId && isUserExist.authProvider === "GOOGLE") {
+		throw new Error("User has account with Google.");
+	}
+	const otp = crypto.randomInt(100000, 1000000).toString();
+	const key = `forgot-password-otp:${isUserExist.email}`;
+
+	await RadisClient.set(key, otp, {
+		expiration: {
+			type: "EX",
+			value: 5 * 60,
+		},
+	});
+
+	const templatePath = path.join(
+		process.cwd(),
+		"src/templates/forgot-password.ejs",
+	);
+
+	const templateData = {
+		name: isUserExist.name,
+		otp,
+	};
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		from: `"DistrictFix" <${config.email_sender}>`,
+		to: isUserExist.email,
+		subject: "DistrictFix - Password Reset Code",
+
+		html,
+	});
+};
+
 export const AuthServices = {
 	registerCustomer,
 	verifyCustomerEmail,
 	loginUser,
-	googleLogin
+	googleLogin,
+	forgotPassword,
 };

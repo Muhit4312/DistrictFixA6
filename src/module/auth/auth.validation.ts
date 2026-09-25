@@ -41,10 +41,18 @@ const CustomerVerifyZodSchema = z.object({
 
 })
 
+const forgotPasswordZodSchema = z.object({
+	email : z.email(),
+	
+})
+
 export const UserValidation = {
 	CustomerRegistrationZodSchema,
     loginZodSchema,
-    CustomerVerifyZodSchema
+    CustomerVerifyZodSchema,
+	forgotPasswordZodSchema
 };
+
+
 
 
