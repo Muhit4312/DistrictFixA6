@@ -15,15 +15,27 @@ const config = {
 	jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN!,
 	jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN!,
 	google_client_id: process.env.GOOGLE_CLIENT_ID!,
+	
 	super_admin_name: process.env.SUPER_ADMIN_NAME!,
 	super_admin_email: process.env.SUPER_ADMIN_EMAIL!,
 	super_admin_password: process.env.SUPER_ADMIN_PASSWORD!,
+
 	admin_name: process.env.ADMIN_NAME!,
 	admin_email: process.env.ADMIN_EMAIL!,
 	admin_password: process.env.ADMIN_PASSWORD!,
-	doctor_name: process.env.DOCTOR_NAME!,
-	doctor_email: process.env.DOCTOR_EMAIL!,
-	doctor_password: process.env.DOCTOR_PASSWORD!,
+
+	service_holder_name: process.env.SERVICE_HOLDER_NAME!,
+	service_holder_email: process.env.SERVICE_HOLDER_EMAIL!,
+	service_holder_password: process.env.SERVICE_HOLDER_PASSWORD!,
+
+	plumber_name: process.env.PLUMBER_NAME!,
+	plumber_email: process.env.PLUMBER_EMAIL!,
+	plumber_password: process.env.PLUMBER_PASSWORD!,
+
+	electrician_name: process.env.ELECTRICIAN_NAME!,
+	electrician_email: process.env.ELECTRICIAN_EMAIL!,
+	electrician_password: process.env.ELECTRICIAN_PASSWORD!,
+
 	radis_user: process.env.RADIS_USER!,
 	radis_password: process.env.RADIS_PASSWORD!,
 	radis_host: process.env.RADIS_HOST!,

@@ -3,6 +3,7 @@ import config from "./config/env.config";
 import { transporter } from "./lib/nodemailer";
 import { prisma } from "./lib/prisma";
 import { RadisClient } from "./lib/radis";
+import { seedAdmin, seedElectrician, seedPlumber, seedServiceHolder, seedSuperAdmin } from "./utils/seed";
 
 const main = async () => {
 	try {
@@ -12,6 +13,11 @@ const main = async () => {
 		console.log("Connected to the Radis successfully.");
 		await transporter.verify();
 		console.log("Nodemailer Connected successfully.");
+		await seedSuperAdmin();
+		await seedAdmin();
+		await seedServiceHolder();
+		await seedPlumber();
+		await seedElectrician();
 		app.listen(config.port, () => {
 			console.log(`Server app listening on port ${config.port}`);
 		});

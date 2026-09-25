@@ -35,7 +35,16 @@ const loginZodSchema = z.object({
 		.regex(/[^A-Za-z0-9]/, "Password must contain a special character"),
 })
 
+const CustomerVerifyZodSchema = z.object({
+	email : z.email(),
+	otp: z.string().length(6)
+
+})
+
 export const UserValidation = {
 	CustomerRegistrationZodSchema,
-    loginZodSchema
+    loginZodSchema,
+    CustomerVerifyZodSchema
 };
+
+
