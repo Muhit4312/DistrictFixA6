@@ -18,6 +18,7 @@ model User {
     deletedAt DateTime?
 
     profile Profile?
+    serviceRequests ServiceRequest[]
 
     @@index([role])
     @@index([status])

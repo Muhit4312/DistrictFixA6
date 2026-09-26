@@ -18,3 +18,18 @@ enum AuthProvider {
   CREDENTIALS
   GOOGLE
 }
+
+enum ServiceType {
+  PLUMBING
+  ELECTRICAL
+}
+
+enum ServiceRequestStatus {
+  PENDING
+  ASSIGNED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REJECTED
+}

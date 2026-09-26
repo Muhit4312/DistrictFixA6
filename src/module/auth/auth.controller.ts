@@ -111,7 +111,6 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 
 const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
 	const {userId} = req.user
-	console.log(req.user);
 	if (!userId) {
 		throw new Error("User information is missing in the request");
 	}
