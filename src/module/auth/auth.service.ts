@@ -6,6 +6,8 @@ import type {
 	ILoginUserPayload,
 	IRegisterUserPayload,
 	IRegisterVerifyEmailPayload,
+	IRequestUser,
+	IResetPasswordPayload,
 } from "./auth.interface";
 import crypto from "crypto";
 import { RadisClient } from "../../lib/radis";
@@ -15,7 +17,7 @@ import config from "../../config/env.config";
 import ejs from "ejs";
 import {  AuthProvider, Role, UserStatus } from "../../../generated/prisma/enums";
 import { jwtUtils } from "../../utils/jwt";
-import type { SignOptions } from "jsonwebtoken";
+import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import { googleClient } from "../../lib/googleAuth";
 import { TokenPayload } from "google-auth-library";
 
@@ -255,6 +257,7 @@ const loginUser = async (payload: ILoginUserPayload) => {
 	};
 };
 
+
 const googleLogin = async (payload: IGoogleLoginPayload) => {
 	let googleIdTokenPayload: TokenPayload | null | undefined = null;
 	try {
@@ -383,6 +386,26 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 	};
 };
 
+const getCurrentUser = async (userId: string) => {
+	const isUserExists = await prisma.user.findUniqueOrThrow({
+		where: {
+			id: userId,
+		},
+		include: {
+			profile: true,
+		},
+		omit: {
+			password: true,
+		},
+	});
+
+	// if(!isUserExists){
+	// 	throw new Error("User not exists")
+	// }
+
+	return isUserExists;
+};
+
 const forgotPassword = async (payload: IForgotPasswordPayload) => {
 	const { email } = payload;
 	const isUserExist = await prisma.user.findUnique({
@@ -442,10 +465,87 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 	});
 };
 
+const resetPassword = async (payload: IResetPasswordPayload) => {
+	const { email, otp, newPassword } = payload;
+	const isUserExist = await prisma.user.findUnique({
+		where: {
+			email,
+		},
+	});
+
+	if (!isUserExist) {
+		throw new Error("User does not exist");
+	}
+	if (!isUserExist.emailVerified) {
+		throw new Error("User does not Verified");
+	}
+
+	if (isUserExist.status === "BLOCKED") {
+		throw new Error("User is blocked!");
+	}
+	if (isUserExist.status === "SUSPENDED") {
+		throw new Error("User is suspended!");
+	}
+	if (isUserExist.isDeleted || isUserExist.status === "DELETED") {
+		throw new Error("User is deleted!");
+	}
+
+	if (isUserExist.googleId && isUserExist.authProvider === "GOOGLE") {
+		throw new Error("User has account with Google.");
+	}
+
+	const key = `forgot-password-otp:${isUserExist.email}`;
+	const radisOtp = await RadisClient.get(key);
+
+	if (!radisOtp) {
+		throw new Error("OTP expired or invalid!");
+	}
+	if (otp !== radisOtp) {
+		throw new Error("OTP Does Not Match");
+	}
+
+	const hashedNewPassword = await bcrypt.hash(
+		newPassword,
+		Number(config.bcrypt_salt_rounds),
+	);
+
+	await prisma.user.update({
+		where: {
+			email: isUserExist.email,
+		},
+		data: {
+			password: hashedNewPassword,
+		},
+	});
+
+	await RadisClient.del([key]);
+
+	const templatePath = path.join(
+		process.cwd(),
+		"src/templates/reset-password-success.ejs",
+	);
+
+	const templateData = {
+		name: isUserExist.name,
+	};
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		from: `"DistrictFix" <${config.email_sender}>`,
+		to: isUserExist.email,
+		subject: "DistrictFix - Password Reset",
+
+		html,
+	});
+};
+
 export const AuthServices = {
 	registerCustomer,
 	verifyCustomerEmail,
 	loginUser,
 	googleLogin,
 	forgotPassword,
+	resetPassword,
+	getCurrentUser
 };

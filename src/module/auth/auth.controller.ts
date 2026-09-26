@@ -3,6 +3,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import { AuthServices } from "./auth.service";
+import { JwtPayload } from "jsonwebtoken";
 
 const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -108,6 +109,22 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
+	const {userId} = req.user
+	console.log(req.user);
+	if (!userId) {
+		throw new Error("User information is missing in the request");
+	}
+
+	const result = await AuthServices.getCurrentUser(userId);
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "User Retrieved successfully",
+		data: result,
+	});
+});
+
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	 await AuthServices.forgotPassword(payload);
@@ -121,10 +138,24 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+	const payload = req.body;
+	await AuthServices.resetPassword(payload);
+	
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Password Changed successfully!",
+		data:null,
+	});
+});
+
 export const AuthController = {
 	registerCustomer,
 	verifyCustomerEmail,
 	loginUser,
 	googleLogin,
 	forgotPassword,
+	resetPassword,
+	getCurrentUser
 };

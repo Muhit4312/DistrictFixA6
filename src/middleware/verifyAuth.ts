@@ -19,12 +19,13 @@ export const verifyAuth = (...requiredRoles: Role[]) => {
 		}
 
 		const verifiedToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
+		
 
 		if (!verifiedToken) {
 			throw new Error("Invalid Token");
 		}
 
-		const { id, email, name, role } = verifiedToken as JwtPayload;
+		const { userId, email, name, role } = verifiedToken as JwtPayload;
 
 		if (requiredRoles.length && !requiredRoles.includes(role)) {
 			throw new Error("Forbidden access to resources.");
@@ -32,7 +33,7 @@ export const verifyAuth = (...requiredRoles: Role[]) => {
 
 		const user = await prisma.user.findUnique({
 			where: {
-				id,
+				id: userId,
 				email,
 			},
 		});
@@ -46,7 +47,7 @@ export const verifyAuth = (...requiredRoles: Role[]) => {
 		}
 
 		req.user = {
-			id,
+			userId,
 			email,
 			name,
 			role,
