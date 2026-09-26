@@ -16,6 +16,7 @@ router.get(
 	verifyAuth(Role.ADMIN,Role.CUSTOMER,Role.ELECTRICIAN,Role.PLUMBER,Role.SERVICE_HOLDER,Role.SUPER_ADMIN),
 	AuthController.getCurrentUser,
 );
+router.post("/refresh-token", AuthController.refreshToken);
 router.post("/forgot-password", validateRequest(UserValidation.forgotPasswordZodSchema), AuthController.forgotPassword);
 router.post("/reset-password",validateRequest(UserValidation.resetPasswordZodSchema), AuthController.resetPassword);
 

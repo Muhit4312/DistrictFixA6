@@ -406,6 +406,66 @@ const getCurrentUser = async (userId: string) => {
 	return isUserExists;
 };
 
+const refreshToken = async (token: string) => {
+	const verifiedRefreshToken = jwtUtils.verifyToken(
+		token,
+		config.jwt_refresh_secret,
+	);
+	console.log(verifiedRefreshToken);
+	
+
+	 if(!verifiedRefreshToken){
+        throw new Error("invalid refresh token")
+    }
+
+	 const {userId} = verifiedRefreshToken as JwtPayload;
+
+    const user = await prisma.user.findUniqueOrThrow({
+        where : {
+            id: userId
+        }
+    })
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new Error("User is blocked!");
+	}
+	if (user.status === UserStatus.SUSPENDED) {
+		throw new Error("User is Suspended!");
+	}
+
+	if (!user || user.isDeleted || user.status !== UserStatus.ACTIVE) {
+		throw new Error("User is inactive or not found");
+	}
+
+	const jwtPayload = {
+		userId: user.id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+	};
+
+	console.log({jwtPayload});
+
+	const accessToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_access_secret,
+		config.jwt_access_expires_in as SignOptions,
+	);
+
+	const refreshToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_refresh_secret,
+		config.jwt_refresh_expires_in as SignOptions,
+	);
+
+	console.log({refreshToken,accessToken});
+
+	return {
+		accessToken,
+		refreshToken,
+	};
+};
+
 const forgotPassword = async (payload: IForgotPasswordPayload) => {
 	const { email } = payload;
 	const isUserExist = await prisma.user.findUnique({
@@ -547,5 +607,6 @@ export const AuthServices = {
 	googleLogin,
 	forgotPassword,
 	resetPassword,
-	getCurrentUser
+	getCurrentUser,
+	refreshToken
 };
