@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { sendResponse } from "../../utils/sendResponse";
-import httpStatus from "http-status"
+import httpStatus from "http-status";
 import { DistrictService } from "./district.service";
 
 const createDistrict = async (req: Request, res: Response) => {
@@ -9,76 +9,79 @@ const createDistrict = async (req: Request, res: Response) => {
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
 		success: true,
-		message: "Service created successfully",
+		message: "District created successfully",
 		data: result,
 	});
 };
 
-// const getAllDistricts = async (
-// 	req: Request,
-// 	res: Response,
-// ) => {
-// 	const result = await DistrictService.getAllDistricts();
+const getAllDistricts = async (req: Request, res: Response) => {
+	const result = await DistrictService.getAllDistricts();
 
-// 	res.status(200).json({
-// 		success: true,
-// 		message: "Districts retrieved successfully",
-// 		data: result,
-// 	});
-// };
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Districts Retrieved successfully",
+		data: result,
+	});
+};
 
-// const getSingleDistrict = async (
-// 	req: Request,
-// 	res: Response,
-// ) => {
-// 	const { id } = req.params;
+const getSingleDistrict = async (
+	req: Request,
+	res: Response,
+) => {
+	const { id } = req.params;
 
-// 	const result = await DistrictService.getSingleDistrict(id);
+	const result = await DistrictService.getSingleDistrict(id as string);
 
-// 	res.status(200).json({
-// 		success: true,
-// 		message: "District retrieved successfully",
-// 		data: result,
-// 	});
-// };
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "District Retrieved successfully",
+		data: result,
+	});
+};
 
-// const updateDistrict = async (
-// 	req: Request,
-// 	res: Response,
-// ) => {
-// 	const { id } = req.params;
+const updateDistrict = async (
+	req: Request,
+	res: Response,
+) => {
+	const { id } = req.params;
 
-// 	const result = await DistrictService.updateDistrict(
-// 		id,
-// 		req.body,
-// 	);
+	const result = await DistrictService.updateDistrict(
+		id as string,
+		req.body,
+	);
 
-// 	res.status(200).json({
-// 		success: true,
-// 		message: "District updated successfully",
-// 		data: result,
-// 	});
-// };
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "District updated successfully",
+		data: result,
+	});
 
-// const deleteDistrict = async (
-// 	req: Request,
-// 	res: Response,
-// ) => {
-// 	const { id } = req.params;
+	
+};
 
-// 	await DistrictService.deleteDistrict(id);
+const deleteDistrict = async (
+	req: Request,
+	res: Response,
+) => {
+	const { id } = req.params;
 
-// 	res.status(200).json({
-// 		success: true,
-// 		message: "District deleted successfully",
-// 		data: null,
-// 	});
-// };
+	await DistrictService.deleteDistrict(id as string) ;
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "District deleted successfully",
+		data: null,
+	});
+};
 
 export const DistrictController = {
 	createDistrict,
-	// getAllDistricts,
-	// getSingleDistrict,
-	// updateDistrict,
-	// deleteDistrict,
+	getAllDistricts,
+	getSingleDistrict,
+	updateDistrict,
+	deleteDistrict,
 };
