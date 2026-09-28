@@ -5,6 +5,7 @@ model District {
     code            String           @unique
     isActive        Boolean          @default(true)
     serviceRequests ServiceRequest[]
+    serviceHolderApplications ServiceHolderApplication[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

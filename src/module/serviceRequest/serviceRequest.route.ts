@@ -2,18 +2,22 @@ import { Router } from "express";
 import { verifyAuth } from "../../middleware/verifyAuth";
 import { Role } from "../../../generated/prisma/enums";
 import { ServiceRequestControllers } from "./serviceRequest.controller";
+import { ServiceRequestValidation } from "./serviceRequest.validation";
+import { validateRequest } from "../../middleware/zodValidationRequest";
 
 const router = Router();
 
 router.post(
 	"/create",
 	verifyAuth(Role.CUSTOMER),
+	validateRequest(ServiceRequestValidation.CreateServiceRequestZodSchema),
 	ServiceRequestControllers.createService,
 );
 
 router.get(
 	"/my",
 	verifyAuth(Role.CUSTOMER),
+	validateRequest(ServiceRequestValidation.ServiceRequestQueryZodSchema),
 	ServiceRequestControllers.getMyServices,
 );
 
@@ -29,6 +33,7 @@ router.get(
 router.patch(
 	"/:id",
 	verifyAuth(Role.CUSTOMER),
+	validateRequest(ServiceRequestValidation.UpdateServiceRequestZodSchema),
 	ServiceRequestControllers.updateService,
 );
 
@@ -36,6 +41,7 @@ router.patch(
 router.patch(
 	"/:id/cancel",
 	verifyAuth(Role.CUSTOMER),
+	validateRequest(ServiceRequestValidation.CancelServiceRequestZodSchema),
 	ServiceRequestControllers.cancelService,
 );
 

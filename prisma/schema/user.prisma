@@ -17,8 +17,11 @@ model User {
     updatedAt DateTime  @updatedAt
     deletedAt DateTime?
 
-    profile Profile?
-    serviceRequests ServiceRequest[]
+    profile                   Profile?
+    serviceHolderApplications ServiceHolderApplication[] @relation("ServiceHolderApplicationUser")
+
+    reviewedServiceHolderApplications ServiceHolderApplication[] @relation("ServiceHolderApplicationReviewer")
+    serviceRequests                   ServiceRequest[]
 
     @@index([role])
     @@index([status])
