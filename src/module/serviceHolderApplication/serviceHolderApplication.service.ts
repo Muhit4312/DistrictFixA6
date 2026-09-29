@@ -109,15 +109,17 @@ const getSingleApplication = async (
 	userId: string,
 	role: Role,
 ) => {
+
+	if (
+		role !== Role.CUSTOMER &&
+		role !== Role.ADMIN &&
+		role !== Role.SUPER_ADMIN
+	) {
+		throw new Error("You are not authorized to view this application");
+	}
+
 	const whereCondition =
-		role === Role.CUSTOMER
-			? {
-					id,
-					userId,
-				}
-			: {
-					id,
-				};
+		role === Role.CUSTOMER ? { id, userId, } : { id, };
 
 	const application =
 		await prisma.serviceHolderApplication.findFirst({
@@ -140,5 +142,5 @@ export const ServiceHolderApplicationServices = {
 	createApplication,
 	getMyApplications,
 	getSingleApplication,
-	
+
 };

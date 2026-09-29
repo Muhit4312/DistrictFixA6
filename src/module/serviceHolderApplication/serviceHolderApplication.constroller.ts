@@ -62,7 +62,7 @@ const getSingleApplication = async (
 	});
 };
 
-// const approveApplication = async (
+
 // 	req: Request,
 // 	res: Response,
 // ) => {
@@ -103,6 +103,5 @@ export const ServiceHolderApplicationControllers = {
 	createApplication,
 	getMyApplications,
 	getSingleApplication,
-	// approveApplication,
-	// rejectApplication,
+	
 };
