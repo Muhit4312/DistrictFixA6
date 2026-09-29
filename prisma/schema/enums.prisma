@@ -33,3 +33,15 @@ enum ServiceRequestStatus {
   CANCELLED
   REJECTED
 }
+
+enum ApplicationStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+enum ServiceHolderStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+}

@@ -1,17 +1,10 @@
-enum ApplicationStatus {
-    PENDING
-    APPROVED
-    REJECTED
-}
-
 model ServiceHolderApplication {
-    id String @id @default(cuid())
-
-    
+    id String @id @default(uuid())
 
     businessName String
     phone        String
     address      String
+    description  String
 
     status ApplicationStatus @default(PENDING)
 
@@ -24,12 +17,12 @@ model ServiceHolderApplication {
     updatedAt DateTime @updatedAt
 
     userId String
-    user User @relation(fields: [userId],references id[], onDelete: Cascade, onUpdate: Cascade)
+    user   User   @relation("ServiceHolderApplicationUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     districtId String
-    district District @relation(fields: [districtId],references id[])
+    district   District @relation(fields: [districtId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    reviewer User? @relation("ServiceHolderApplicationReviewer",fields: [reviewedById],references id[])
+    reviewer User? @relation("ServiceHolderApplicationReviewer", fields: [reviewedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     @@index([userId])
     @@index([districtId])

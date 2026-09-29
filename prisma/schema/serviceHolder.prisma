@@ -1,0 +1,30 @@
+
+model ServiceHolder {
+    id String @id @default(uuid())
+
+    userId String @unique
+    districtId String @unique
+
+    businessName String
+    phone String
+    address String
+
+    status ServiceHolderStatus @default(ACTIVE)
+
+    approvedAt DateTime
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    deletedAt DateTime?
+
+    user User @relation("ServiceHolderUser",fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    district District @relation(fields: [districtId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    
+    serviceRequest ServiceRequest[]
+
+    @@index([status])
+    @@index([deletedAt])
+    @@map("service_holder_users")
+}

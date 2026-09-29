@@ -12,6 +12,7 @@ import { notFound } from "./middleware/notFound";
 import { AuthRoutes } from "./module/auth/auth.route";
 import { ServiceRequestRoutes } from "./module/serviceRequest/serviceRequest.route";
 import { DistrictRoutes } from "./module/district/district.route";
+import { ServiceHolderApplicationRoutes } from "./module/serviceHolderApplication/serviceHolderApplication.route";
 
 const app: Application = express();
 
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/service-requests", ServiceRequestRoutes);
 app.use("/api/v1/district", DistrictRoutes);
+app.use("/api/v1/service-holder-applicaitons", ServiceHolderApplicationRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
 	res.status(httpStatus.OK).json({

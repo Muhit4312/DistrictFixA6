@@ -22,6 +22,7 @@ model User {
 
     reviewedServiceHolderApplications ServiceHolderApplication[] @relation("ServiceHolderApplicationReviewer")
     serviceRequests                   ServiceRequest[]
+    serviceHolders                   ServiceHolder?             @relation("ServiceHolderUser")
 
     @@index([role])
     @@index([status])
