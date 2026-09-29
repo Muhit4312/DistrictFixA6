@@ -13,6 +13,7 @@ import { AuthRoutes } from "./module/auth/auth.route";
 import { ServiceRequestRoutes } from "./module/serviceRequest/serviceRequest.route";
 import { DistrictRoutes } from "./module/district/district.route";
 import { ServiceHolderApplicationRoutes } from "./module/serviceHolderApplication/serviceHolderApplication.route";
+import { adminRoutes } from "./module/admin/admin.route";
 
 const app: Application = express();
 
@@ -34,6 +35,7 @@ app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/service-requests", ServiceRequestRoutes);
 app.use("/api/v1/district", DistrictRoutes);
 app.use("/api/v1/service-holder-applicaitons", ServiceHolderApplicationRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
 	res.status(httpStatus.OK).json({
