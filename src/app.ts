@@ -15,6 +15,7 @@ import { DistrictRoutes } from "./module/district/district.route";
 import { ServiceHolderApplicationRoutes } from "./module/serviceHolderApplication/serviceHolderApplication.route";
 import { adminRoutes } from "./module/admin/admin.route";
 import { ServiceHolderRoutes } from "./module/serviceHolder/serviceHolder.route";
+import { WorkerApplicationRoutes } from "./module/workerApplication/workerApplication.route";
 
 const app: Application = express();
 
@@ -38,6 +39,7 @@ app.use("/api/v1/district", DistrictRoutes);
 app.use("/api/v1/service-holder-applicaitons", ServiceHolderApplicationRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/service-holder", ServiceHolderRoutes);
+app.use("/api/v1/worker-applications",WorkerApplicationRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
 	res.status(httpStatus.OK).json({

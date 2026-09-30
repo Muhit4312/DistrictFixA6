@@ -5,7 +5,7 @@ const CustomerRegistrationZodSchema = z.object({
 		.string("Not A String")
 		.trim()
 		.min(3, "Name must be at least 3 characters")
-		.max(10, "Name cannot exceed 10 characters"),
+		.max(15, "Name cannot exceed 15 characters"),
 
 	email: z.email("Not a valid email").trim().toLowerCase(),
 

@@ -4,15 +4,15 @@ model Worker {
     id String @id @default(ulid())
 
     userId String @unique
-    districtId String @unique
+    districtId String
 
     workerType WorkerType
 
     businessName String?
     phone String
     address String
-    experience Int?
-    description String?
+    experience String?
+    bio String?
 
     status WorkerStatus @default(ACTIVE)
 

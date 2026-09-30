@@ -236,6 +236,8 @@ const getServiceHolderServiceDetails = async (
 	return service;
 };
 
+
+
 export const ServiceHolderServices = {
 	getMyServiceHolder,
 	updateMyServiceHolder,

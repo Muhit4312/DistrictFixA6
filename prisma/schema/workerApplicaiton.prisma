@@ -6,7 +6,7 @@ model WorkerApplication {
     businessName String?
     phone        String
     address      String
-    experience   Int?
+    experience   String?
     description  String?
 
     status          WorkerApplicationStatus @default(PENDING)
