@@ -1,0 +1,37 @@
+
+
+model Worker {
+    id String @id @default(ulid())
+
+    userId String @unique
+    districtId String @unique
+
+    workerType WorkerType
+
+    businessName String?
+    phone String
+    address String
+    experience Int?
+    description String?
+
+    status WorkerStatus @default(ACTIVE)
+
+    approvedAt DateTime
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    deletedAt DateTime?
+
+    user User @relation("WorkerUser",fields: [userId],references: [id],onDelete: Cascade,onUpdate: Cascade)
+
+    district District @relation(fields: [districtId],references: [id],onDelete:Cascade,onUpdate: Cascade)
+
+    requests ServiceRequest[]
+
+    @@index([districtId])
+    @@index([workerType])
+    @@index([status])
+    @@index([deletedAt])
+
+    @@map("workers")
+}

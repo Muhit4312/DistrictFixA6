@@ -6,7 +6,9 @@ model District {
     isActive        Boolean          @default(true)
     serviceRequests ServiceRequest[]
     serviceHolderApplications ServiceHolderApplication[]
+    workerApplications      WorkerApplication[]
     serviceHolders ServiceHolder?
+    workers        Worker?  
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

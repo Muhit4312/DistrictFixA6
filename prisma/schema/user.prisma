@@ -19,10 +19,14 @@ model User {
 
     profile                   Profile?
     serviceHolderApplications ServiceHolderApplication[] @relation("ServiceHolderApplicationUser")
+    workerApplications        WorkerApplication[]        @relation("WorkerApplicationUser")
 
     reviewedServiceHolderApplications ServiceHolderApplication[] @relation("ServiceHolderApplicationReviewer")
+    workerApplicationsReviewed        WorkerApplication[]        @relation("WorkerApplicationReviewer")
     serviceRequests                   ServiceRequest[]
-    serviceHolders                   ServiceHolder?             @relation("ServiceHolderUser")
+    serviceHolders                    ServiceHolder?             @relation("ServiceHolderUser")
+    workers                          Worker?                    @relation("WorkerUser")
+
 
     @@index([role])
     @@index([status])

@@ -30,7 +30,8 @@ model ServiceRequest {
     district        District       @relation(fields: [districtId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     serviceHolderId String?
     serviceHolder   ServiceHolder? @relation(fields: [serviceHolderId], references: [id])
-
+    workerId String?
+    worker   Worker? @relation(fields: [workerId], references: [id])
     @@index([customerId])
     @@index([districtId])
     @@index([status])

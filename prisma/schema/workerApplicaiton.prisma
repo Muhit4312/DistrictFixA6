@@ -1,0 +1,36 @@
+model WorkerApplication {
+    id String @id @default(uuid())
+
+    workerType WorkerType
+
+    businessName String?
+    phone        String
+    address      String
+    experience   Int?
+    description  String?
+
+    status          WorkerApplicationStatus @default(PENDING)
+    rejectionReason String?
+
+    reviewedAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String
+    user   User   @relation("WorkerApplicationUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    districtId String
+    district   District @relation(fields: [districtId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    reviewedById String?
+
+    reviewer User? @relation("WorkerApplicationReviewer", fields: [reviewedById], references: [id])
+
+    @@index([userId])
+    @@index([districtId])
+    @@index([status])
+    @@index([workerType])
+    @@index([reviewedById])
+    @@map("worker_applications")
+}

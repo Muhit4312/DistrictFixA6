@@ -45,3 +45,19 @@ enum ServiceHolderStatus {
     INACTIVE
     SUSPENDED
 }
+
+enum WorkerApplicationStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+enum WorkerType {
+    PLUMBER
+    ELECTRICIAN
+}
+enum WorkerStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+}
