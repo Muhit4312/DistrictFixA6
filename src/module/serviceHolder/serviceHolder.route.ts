@@ -21,5 +21,16 @@ router.patch(
 	),
 	ServiceHolderControllers.updateMyServiceHolder,
 );
+router.get(
+	"/services",
+	verifyAuth(Role.SERVICE_HOLDER),
+	ServiceHolderControllers.getServiceHolderServices,
+);
+
+router.get(
+	"/service-request/:id",
+	verifyAuth(Role.SERVICE_HOLDER),
+	ServiceHolderControllers.getServiceHolderServiceDetails,
+);
 
 export const ServiceHolderRoutes = router;
