@@ -70,9 +70,91 @@ const getServiceHolderServiceDetails = catchAsync(
 		});
 	},
 );
+
+const getWorkerApplicationsByServiceHolder = catchAsync(
+	async (req: Request, res: Response) => {
+		const result =
+			await ServiceHolderServices.getWorkerApplicationsByServiceHolder(
+				req.query,
+				req.user.userId,
+			);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message:
+				"Worker applications retrieved successfully",
+			data: result.data,
+			meta: result.meta,
+		});
+	},
+);
+
+const getWorkerApplicationById = catchAsync(
+	async (req: Request, res: Response) => {
+		const result =
+			await ServiceHolderServices.getSingleApplicationById(
+				req.params.id as string,
+				req.user.userId,
+			);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message:
+				"Worker application retrieved successfully",
+			data: result,
+		});
+	},
+);
+
+const approveWorkerApplication = catchAsync(
+	async (req: Request, res: Response) => {
+		const result =
+			await ServiceHolderServices.approveWorkerApplication(
+				req.params.id as string,
+				req.user.userId,
+			);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message:
+				"Worker application approved successfully",
+			data: result,
+		});
+	},
+);
+
+
+const rejectWorkerApplication = catchAsync(
+	async (req: Request, res: Response) => {
+		const result =
+			await ServiceHolderServices.rejectWorkerApplication(
+				req.params.id as string,
+				req.user.userId,
+				req.body,
+			);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message:
+				"Worker application rejected successfully",
+			data: result,
+		});
+	},
+);
+
+
 export const ServiceHolderControllers = {
 	getMyServiceHolder,
 	updateMyServiceHolder,
 	getServiceHolderServices,
-	getServiceHolderServiceDetails
+	getServiceHolderServiceDetails,
+	getWorkerApplicationsByServiceHolder,
+	getWorkerApplicationById,
+	approveWorkerApplication,
+	rejectWorkerApplication
+	
 };

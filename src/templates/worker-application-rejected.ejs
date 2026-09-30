@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Worker Application Update</title>
+</head>
+
+<body
+    style="
+        margin: 0;
+        padding: 0;
+        background-color: #f4f7f6;
+        font-family: Arial, Helvetica, sans-serif;
+    "
+>
+    <div
+        style="
+            width: 100%;
+            padding: 40px 0;
+            background-color: #f4f7f6;
+        "
+    >
+        <div
+            style="
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #ffffff;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            "
+        >
+            <!-- Header -->
+            <div
+                style="
+                    padding: 30px 25px;
+                    text-align: center;
+                    background-color: #00633c;
+                "
+            >
+                <h1
+                    style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 28px;
+                        font-weight: 700;
+                    "
+                >
+                    DistrictFix
+                </h1>
+
+                <p
+                    style="
+                        margin: 8px 0 0;
+                        color: #d9f2e7;
+                        font-size: 14px;
+                    "
+                >
+                    District-Based Home Service Management System
+                </p>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 35px 30px;">
+                <h2
+                    style="
+                        margin: 0 0 15px;
+                        color: #333333;
+                        font-size: 24px;
+                    "
+                >
+                    Hello, <%= name %>
+                </h2>
+
+                <p
+                    style="
+                        margin: 0 0 20px;
+                        color: #444444;
+                        font-size: 16px;
+                        line-height: 1.7;
+                    "
+                >
+                    Thank you for your interest in joining
+                    <strong>DistrictFix</strong> as a worker.
+                </p>
+
+                <p
+                    style="
+                        margin: 0 0 25px;
+                        color: #444444;
+                        font-size: 16px;
+                        line-height: 1.7;
+                    "
+                >
+                    After reviewing your application, we regret to
+                    inform you that your worker application could not
+                    be approved at this time.
+                </p>
+
+                <!-- Application Details -->
+                <div
+                    style="
+                        margin: 25px 0;
+                        padding: 20px;
+                        background-color: #f8f8f8;
+                        border-left: 4px solid #777777;
+                        border-radius: 8px;
+                    "
+                >
+                    <h3
+                        style="
+                            margin: 0 0 15px;
+                            color: #333333;
+                            font-size: 18px;
+                        "
+                    >
+                        Application Details
+                    </h3>
+
+                    <p
+                        style="
+                            margin: 8px 0;
+                            color: #333333;
+                            font-size: 15px;
+                        "
+                    >
+                        <strong>Worker Type:</strong>
+                        <%= workerType %>
+                    </p>
+
+                    <p
+                        style="
+                            margin: 8px 0;
+                            color: #333333;
+                            font-size: 15px;
+                        "
+                    >
+                        <strong>District:</strong>
+                        <%= districtName %>
+                    </p>
+
+                    <p
+                        style="
+                            margin: 8px 0;
+                            color: #333333;
+                            font-size: 15px;
+                        "
+                    >
+                        <strong>Status:</strong>
+                        Rejected
+                    </p>
+                </div>
+
+                <!-- Rejection Reason -->
+                <div
+                    style="
+                        margin: 25px 0;
+                        padding: 20px;
+                        background-color: #fafafa;
+                        border-radius: 8px;
+                    "
+                >
+                    <h3
+                        style="
+                            margin: 0 0 10px;
+                            color: #333333;
+                            font-size: 17px;
+                        "
+                    >
+                        Reason for Rejection
+                    </h3>
+
+                    <p
+                        style="
+                            margin: 0;
+                            color: #555555;
+                            font-size: 15px;
+                            line-height: 1.7;
+                        "
+                    >
+                        <%= rejectionReason %>
+                    </p>
+                </div>
+
+                <p
+                    style="
+                        margin: 25px 0 0;
+                        color: #444444;
+                        font-size: 15px;
+                        line-height: 1.7;
+                    "
+                >
+                    We appreciate your interest in working with
+                    DistrictFix. You may apply again in the future
+                    with updated information.
+                </p>
+
+                <p
+                    style="
+                        margin: 25px 0 0;
+                        color: #333333;
+                        font-size: 15px;
+                        line-height: 1.6;
+                    "
+                >
+                    Best regards,<br />
+                    <strong>DistrictFix Team</strong>
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div
+                style="
+                    padding: 20px 25px;
+                    text-align: center;
+                    background-color: #f4f7f6;
+                "
+            >
+                <p
+                    style="
+                        margin: 0;
+                        color: #777777;
+                        font-size: 12px;
+                    "
+                >
+                    © <%= new Date().getFullYear() %> DistrictFix.
+                    All rights reserved.
+                </p>
+
+                <p
+                    style="
+                        margin: 6px 0 0;
+                        color: #999999;
+                        font-size: 11px;
+                    "
+                >
+                    This is an automated email. Please do not reply
+                    directly to this message.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

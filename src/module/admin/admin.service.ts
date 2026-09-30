@@ -1,7 +1,11 @@
+import path from "path";
 import { ApplicationStatus, Role, ServiceHolderStatus, UserStatus } from "../../../generated/prisma/enums";
 import { ServiceHolderApplicationWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 import { IRejectServiceHolderApplicationPayload, IServiceHolderApplicationQuery } from "./admin.interface";
+import { transporter } from "../../lib/nodemailer";
+import config from "../../config/env.config";
+import ejs from "ejs"
 
 
 const getAllApplications = async (
@@ -272,6 +276,32 @@ const approveApplication = async (
 		};
 	});
 
+	try {
+		const templatePath = path.join(
+			process.cwd(),
+			"src/templates/service-holder-application-approved.ejs",
+		);
+
+		const html = await ejs.renderFile(templatePath, {
+			name: application.user.name,
+			businessName: application.businessName,
+			districtName: application.district.name,
+		});
+
+		await transporter.sendMail({
+			from: `"DistrictFix" <${config.email_sender}>`,
+			to: application.user.email,
+			subject:
+				"Your DistrictFix Service Holder Application Has Been Approved",
+			html,
+		});
+	} catch (error) {
+		console.error(
+			"Failed to send Service Holder approval email:",
+			error,
+		);
+	}
+
 	return result;
 };
 
@@ -284,6 +314,16 @@ const rejectApplication = async (
 		await prisma.serviceHolderApplication.findUnique({
 			where: {
 				id,
+			},
+			include: {
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+				district: true,
 			},
 		});
 
@@ -299,34 +339,64 @@ const rejectApplication = async (
 		);
 	}
 
-	return await prisma.serviceHolderApplication.update({
-		where: {
-			id: application.id,
-		},
-		data: {
-			status: ApplicationStatus.REJECTED,
+	const rejectedApplication =
+		await prisma.serviceHolderApplication.update({
+			where: {
+				id: application.id,
+			},
+			data: {
+				status: ApplicationStatus.REJECTED,
+				rejectionReason: payload.rejectionReason,
+				reviewedById: adminId,
+				reviewedAt: new Date(),
+			},
+			include: {
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+				district: true,
+				reviewer: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+			},
+		});
+
+	try {
+		const templatePath = path.join(
+			process.cwd(),
+			"src/templates/service-holder-application-rejected.ejs",
+		);
+
+		const html = await ejs.renderFile(templatePath, {
+			name: application.user.name,
+			businessName: application.businessName,
+			districtName: application.district.name,
 			rejectionReason: payload.rejectionReason,
-			reviewedById: adminId,
-			reviewedAt: new Date(),
-		},
-		include: {
-			user: {
-				select: {
-					id: true,
-					name: true,
-					email: true,
-				},
-			},
-			district: true,
-			reviewer: {
-				select: {
-					id: true,
-					name: true,
-					email: true,
-				},
-			},
-		},
-	});
+		});
+
+		await transporter.sendMail({
+			from: `"DistrictFix" <${config.email_sender}>`,
+			to: application.user.email,
+			subject:
+				"Update on Your DistrictFix Service Holder Application",
+			html,
+		});
+	} catch (error) {
+		console.error(
+			"Failed to send Service Holder rejection email:",
+			error,
+		);
+	}
+
+	return rejectedApplication;
 };
 
 export const ServiceHolderApplicationServices = {

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+    <title>Worker Application Approved</title>
+</head>
+
+<body
+    style="
+        margin: 0;
+        padding: 0;
+        background-color: #f4f7f6;
+        font-family: Arial, Helvetica, sans-serif;
+    "
+>
+    <table
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        style="padding: 40px 20px;"
+    >
+        <tr>
+            <td align="center">
+                <table
+                    width="600"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                        max-width: 600px;
+                        width: 100%;
+                        background-color: #ffffff;
+                        border-radius: 12px;
+                        overflow: hidden;
+                    "
+                >
+                    <tr>
+                        <td
+                            style="
+                                background-color: #00633c;
+                                padding: 28px 30px;
+                                text-align: center;
+                            "
+                        >
+                            <h1
+                                style="
+                                    margin: 0;
+                                    color: #ffffff;
+                                    font-size: 28px;
+                                "
+                            >
+                                DistrictFix
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 35px 30px;">
+                            <h2
+                                style="
+                                    margin-top: 0;
+                                    color: #222222;
+                                "
+                            >
+                                Worker Application Approved 🎉
+                            </h2>
+
+                            <p
+                                style="
+                                    color: #555555;
+                                    font-size: 16px;
+                                    line-height: 1.7;
+                                "
+                            >
+                                Hello
+                                <strong><%= name %></strong>,
+                            </p>
+
+                            <p
+                                style="
+                                    color: #555555;
+                                    font-size: 16px;
+                                    line-height: 1.7;
+                                "
+                            >
+                                Congratulations! Your application to join
+                                DistrictFix as a
+                                <strong><%= workerType %></strong>
+                                has been approved.
+                            </p>
+
+                            <table
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                style="
+                                    margin: 25px 0;
+                                    background-color: #f5f8f7;
+                                    border-radius: 8px;
+                                "
+                            >
+                                <tr>
+                                    <td style="padding: 16px;">
+                                        <strong>Worker Type</strong>
+                                    </td>
+
+                                    <td style="padding: 16px;">
+                                        <%= workerType %>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding: 16px;">
+                                        <strong>District</strong>
+                                    </td>
+
+                                    <td style="padding: 16px;">
+                                        <%= districtName %>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p
+                                style="
+                                    color: #555555;
+                                    font-size: 16px;
+                                    line-height: 1.7;
+                                "
+                            >
+                                Your worker account is now active.
+                                You can log in to DistrictFix and access
+                                the features available to your worker role.
+                            </p>
+
+                            <p
+                                style="
+                                    color: #555555;
+                                    font-size: 16px;
+                                    line-height: 1.7;
+                                "
+                            >
+                                Welcome to the DistrictFix team!
+                            </p>
+
+                            <p
+                                style="
+                                    margin-bottom: 0;
+                                    color: #333333;
+                                "
+                            >
+                                Regards,<br />
+                                <strong>DistrictFix Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td
+                            style="
+                                background-color: #f4f7f6;
+                                padding: 20px;
+                                text-align: center;
+                            "
+                        >
+                            <p
+                                style="
+                                    margin: 0;
+                                    color: #777777;
+                                    font-size: 13px;
+                                "
+                            >
+                                © DistrictFix. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

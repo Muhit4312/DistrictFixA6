@@ -4,3 +4,7 @@ export interface IUpdateServiceHolderPayload {
 	address?: string;
 
 }
+
+export interface IRejectWorkerApplicationPayload {
+	rejectionReason: string;
+}

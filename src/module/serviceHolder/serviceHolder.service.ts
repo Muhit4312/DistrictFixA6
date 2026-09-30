@@ -1,8 +1,13 @@
-import { UserStatus } from "../../../generated/prisma/enums";
-import { ServiceRequestWhereInput } from "../../../generated/prisma/models";
+import path from "path";
+import { UserStatus, WorkerApplicationStatus, WorkerType } from "../../../generated/prisma/enums";
+import { ServiceRequestWhereInput, WorkerApplicationWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 import { IServiceRequestQuery } from "../serviceRequest/serviceRequest.interface";
-import { IUpdateServiceHolderPayload } from "./serviceHolder.interface";
+import { IWorkerApplicationQuery } from "../workerApplication/workerApplication.interface";
+import { IRejectWorkerApplicationPayload, IUpdateServiceHolderPayload } from "./serviceHolder.interface";
+import ejs from "ejs"
+import { transporter } from "../../lib/nodemailer";
+import config from "../../config/env.config";
 
 const getMyServiceHolder = async (userId: string) => {
 	const serviceHolder = await prisma.serviceHolder.findFirst({
@@ -236,11 +241,382 @@ const getServiceHolderServiceDetails = async (
 	return service;
 };
 
+const getWorkerApplicationsByServiceHolder = async (
+	query: IWorkerApplicationQuery,
+	userId: string,
+) => {
+	const serviceHolder =
+		await prisma.serviceHolder.findFirst({
+			where: {
+				userId,
+				deletedAt: null,
+				status: "ACTIVE",
+			},
+		});
+
+	if (!serviceHolder) {
+		throw new Error("Service Holder profile not found");
+	}
+
+	const limit = Math.min(
+		Math.max(Number(query.limit) || 10, 1),
+		50,
+	);
+
+	const page = Math.max(Number(query.page) || 1, 1);
+
+	const skip = (page - 1) * limit;
+
+	const sortBy =
+		query.sortBy &&
+			["createdAt", "updatedAt"].includes(query.sortBy)
+			? query.sortBy
+			: "createdAt";
+
+	const sortOrder =
+		query.sortOrder === "asc" ? "asc" : "desc";
+
+	const andConditions: WorkerApplicationWhereInput[] = [
+		{
+			districtId: serviceHolder.districtId,
+		},
+	];
+
+	if (query.searchTerm) {
+		andConditions.push({
+			OR: [
+				{
+					phone: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					address: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					description: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+			],
+		});
+	}
+
+	if (query.status) {
+		andConditions.push({
+			status: query.status,
+		});
+	}
+
+	if (query.workerType) {
+		andConditions.push({
+			workerType: query.workerType,
+		});
+	}
+
+	const whereCondition = {
+		AND: andConditions,
+	};
+
+	const [applications, total] = await Promise.all([
+		prisma.workerApplication.findMany({
+			where: whereCondition,
+			take: limit,
+			skip,
+			orderBy: {
+				[sortBy]: sortOrder,
+			},
+			include: {
+				user: {
+					omit: {
+						password: true,
+					},
+				},
+				district: true,
+			},
+		}),
+
+		prisma.workerApplication.count({
+			where: whereCondition,
+		}),
+	]);
+
+	return {
+		data: applications,
+		meta: {
+			page,
+			limit,
+			total,
+			totalPages: Math.ceil(total / limit),
+		},
+	};
+};
+
+const getSingleApplicationById = async (
+	id: string,
+	userId: string,
+) => {
+	const serviceHolder =
+		await prisma.serviceHolder.findFirst({
+			where: {
+				userId,
+				deletedAt: null,
+				status: "ACTIVE",
+			},
+		});
+
+	if (!serviceHolder) {
+		throw new Error("Service Holder profile not found");
+	}
+
+	const application =
+		await prisma.workerApplication.findFirst({
+			where: {
+				id,
+				districtId: serviceHolder.districtId,
+			},
+			include: {
+				user: {
+					omit: {
+						password: true,
+					},
+				},
+				district: true,
+			},
+		});
+
+	if (!application) {
+		throw new Error("Worker application not found");
+	}
+
+	return application;
+};
+
+const approveWorkerApplication = async (
+	id: string,
+	userId: string,
+) => {
+	const serviceHolder =
+		await prisma.serviceHolder.findFirst({
+			where: {
+				userId,
+				deletedAt: null,
+				status: "ACTIVE",
+			},
+		});
+
+	if (!serviceHolder) {
+		throw new Error("Service Holder profile not found");
+	}
+
+	const application =
+		await prisma.workerApplication.findFirst({
+			where: {
+				id,
+				districtId: serviceHolder.districtId,
+			},
+			include: {
+				user: {
+					omit: {
+						password: true
+					}
+				},
+				district: true
+			}
+		});
+
+
+
+	if (!application) {
+		throw new Error("Worker application not found");
+	}
+
+	if (
+		application.status !== WorkerApplicationStatus.PENDING) {
+		throw new Error("Only pending applications can be approved",);
+	}
+
+	const existingWorker =
+		await prisma.worker.findUnique({
+			where: {
+				userId: application.userId,
+			},
+		});
+
+	if (existingWorker) {
+		throw new Error("User is already a worker");
+	}
+
+	const result = await prisma.$transaction(async (tx) => {
+		const updatedApplication =
+			await tx.workerApplication.update({
+				where: {
+					id: application.id,
+				},
+				data: {
+					status: WorkerApplicationStatus.APPROVED,
+					reviewedById: userId,
+					reviewedAt: new Date(),
+					rejectionReason: null,
+				},
+			});
+
+		await tx.user.update({
+			where: {
+				id: application.userId,
+			},
+			data: { role: application.workerType},
+		});
+
+		await tx.worker.create({
+			data: {
+				userId: application.userId,
+				districtId: application.districtId,
+				workerType: application.workerType,
+				phone: application.phone,
+				address: application.address,
+				experience: application.experience,
+				approvedAt: new Date(),
+			},
+		});
+
+		return updatedApplication;
+	});
+
+	try {
+		const templatePath = path.join(
+			process.cwd(),
+			"src/templates/worker-application-approved.ejs",
+		);
+
+		const html = await ejs.renderFile(templatePath, {
+			name: application.user.name,
+			workerType: application.workerType,
+			districtName: application.district.name,
+		});
+
+		await transporter.sendMail({
+			from: `"DistrictFix" <${config.email_sender}>`,
+			to: application.user.email,
+			subject:
+				"Your DistrictFix Worker Application Has Been Approved",
+			html,
+		});
+	} catch (error) {
+		console.error(
+			"Failed to send Worker approval email:",
+			error,
+		);
+	}
+
+
+	return result
+};
+
+const rejectWorkerApplication = async (
+	id: string,
+	userId: string,
+	payload: IRejectWorkerApplicationPayload,
+) => {
+	const serviceHolder =
+		await prisma.serviceHolder.findFirst({
+			where: {
+				userId,
+				deletedAt: null,
+				status: "ACTIVE",
+			},
+		});
+
+	if (!serviceHolder) {
+		throw new Error("Service Holder profile not found");
+	}
+
+	const application =
+		await prisma.workerApplication.findFirst({
+			where: {
+				id,
+				districtId: serviceHolder.districtId,
+			},
+			include: {
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+				district: true,
+			},
+		});
+
+	if (!application) {
+		throw new Error("Worker application not found");
+	}
+
+	if (
+		application.status !==
+		WorkerApplicationStatus.PENDING
+	) {
+		throw new Error(
+			"Only pending applications can be rejected",
+		);
+	}
+
+	const rejectedApplication =
+		await prisma.workerApplication.update({
+			where: {
+				id: application.id,
+			},
+			data: {
+				status: WorkerApplicationStatus.REJECTED,
+				rejectionReason: payload.rejectionReason,
+				reviewedById: userId,
+				reviewedAt: new Date(),
+			},
+		});
+	try {
+		const templatePath = path.join(
+			process.cwd(),
+			"src/templates/worker-application-rejected.ejs",
+		);
+
+		const html = await ejs.renderFile(templatePath, {
+			name: application.user.name,
+			workerType: application.workerType,
+			districtName: application.district.name,
+			rejectionReason: payload.rejectionReason,
+		});
+
+		await transporter.sendMail({
+			from: `"DistrictFix" <${config.email_sender}>`,
+			to: application.user.email,
+			subject:
+				"Update on Your DistrictFix Worker Application",
+			html,
+		});
+	} catch (error) {
+		console.error(
+			"Failed to send Worker rejection email:",
+			error,
+		);
+	}
+
+	return rejectedApplication;
+};
 
 
 export const ServiceHolderServices = {
 	getMyServiceHolder,
 	updateMyServiceHolder,
 	getServiceHolderServices,
-	getServiceHolderServiceDetails
+	getServiceHolderServiceDetails,
+	getWorkerApplicationsByServiceHolder,
+	getSingleApplicationById,
+	approveWorkerApplication,
+	rejectWorkerApplication
 };
