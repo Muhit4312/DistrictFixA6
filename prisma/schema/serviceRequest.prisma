@@ -12,6 +12,8 @@ model ServiceRequest {
     status ServiceRequestStatus @default(PENDING)
 
     cancellationReason String?
+    rejectionReason   String?
+    
 
     assignedAt  DateTime?
     startedAt   DateTime?
@@ -32,6 +34,10 @@ model ServiceRequest {
     serviceHolder   ServiceHolder? @relation(fields: [serviceHolderId], references: [id])
     workerId String?
     worker   Worker? @relation(fields: [workerId], references: [id])
+    rejectWorkerId String?
+    rejectWorker   Worker? @relation("RejectWorker", fields: [rejectWorkerId], references: [id])
+
+
     @@index([customerId])
     @@index([districtId])
     @@index([status])

@@ -146,6 +146,59 @@ const rejectWorkerApplication = catchAsync(
 	},
 );
 
+const getMyDistrictWorkers = catchAsync(
+	async (req: Request, res: Response) => {
+		const result =
+			await ServiceHolderServices.getMyDistrictWorkers(
+				req.query,
+				req.user.userId,
+			);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "District workers retrieved successfully",
+			data: result.data,
+			meta: result.meta,
+		});
+	},
+);
+
+const getMyDistrictSingleWorker = catchAsync(
+	async (req: Request, res: Response) => {
+		const result =
+			await ServiceHolderServices.getMyDistrictSingleWorker(
+				req.params.id as string,
+				req.user.userId,
+			);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "Worker retrieved successfully",
+			data: result,
+		});
+	},
+);
+
+const assignServiceRequest = catchAsync(
+	async (req: Request, res: Response) => {
+		const result =
+			await ServiceHolderServices.assignServiceRequest(
+				req.params.id as string,
+				req.body,
+				req.user.userId,
+			);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "Service request assigned successfully",
+			data: result,
+		});
+	},
+);
+
 
 export const ServiceHolderControllers = {
 	getMyServiceHolder,
@@ -155,6 +208,9 @@ export const ServiceHolderControllers = {
 	getWorkerApplicationsByServiceHolder,
 	getWorkerApplicationById,
 	approveWorkerApplication,
-	rejectWorkerApplication
+	rejectWorkerApplication,
+	getMyDistrictWorkers,
+	getMyDistrictSingleWorker,
+	assignServiceRequest,
 	
 };

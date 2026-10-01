@@ -1,10 +1,10 @@
 import path from "path";
-import { UserStatus, WorkerApplicationStatus, WorkerType } from "../../../generated/prisma/enums";
-import { ServiceRequestWhereInput, WorkerApplicationWhereInput } from "../../../generated/prisma/models";
+import { ServiceHolderStatus, ServiceRequestStatus, ServiceType, UserStatus, WorkerApplicationStatus, WorkerStatus, WorkerType } from "../../../generated/prisma/enums";
+import { ServiceRequestWhereInput, WorkerApplicationWhereInput, WorkerWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 import { IServiceRequestQuery } from "../serviceRequest/serviceRequest.interface";
 import { IWorkerApplicationQuery } from "../workerApplication/workerApplication.interface";
-import { IRejectWorkerApplicationPayload, IUpdateServiceHolderPayload } from "./serviceHolder.interface";
+import { IAssignServiceRequestPayload, IRejectWorkerApplicationPayload, IServiceHolderWorkerQuery, IUpdateServiceHolderPayload } from "./serviceHolder.interface";
 import ejs from "ejs"
 import { transporter } from "../../lib/nodemailer";
 import config from "../../config/env.config";
@@ -470,7 +470,7 @@ const approveWorkerApplication = async (
 			where: {
 				id: application.userId,
 			},
-			data: { role: application.workerType},
+			data: { role: application.workerType },
 		});
 
 		await tx.worker.create({
@@ -609,6 +609,355 @@ const rejectWorkerApplication = async (
 	return rejectedApplication;
 };
 
+const getMyDistrictWorkers = async (
+	query: IServiceHolderWorkerQuery,
+	userId: string,
+) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
+
+	if (!user) {
+		throw new Error("User not found");
+	}
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new Error("User is blocked!");
+	}
+
+	if (user.status === UserStatus.SUSPENDED) {
+		throw new Error("User is suspended!");
+	}
+
+	if (
+		user.deletedAt ||
+		user.status === UserStatus.DELETED
+	) {
+		throw new Error("User is deleted!");
+	}
+
+	const serviceHolder = await prisma.serviceHolder.findFirst({
+		where: {
+			userId,
+			status: "ACTIVE",
+			deletedAt: null,
+		},
+	});
+
+	if (!serviceHolder) {
+		throw new Error(
+			"Active service holder profile not found",
+		);
+	}
+
+	const limit = Math.min(
+		Math.max(Number(query.limit) || 10, 1),
+		50,
+	);
+
+	const page = Math.max(Number(query.page) || 1, 1);
+
+	const skip = (page - 1) * limit;
+
+	const sortBy =
+		query.sortBy &&
+			["createdAt", "updatedAt", "experience"].includes(
+				query.sortBy,
+			)
+			? query.sortBy
+			: "createdAt";
+
+	const sortOrder =
+		query.sortOrder === "asc" ? "asc" : "desc";
+
+	const andConditions: WorkerWhereInput[] = [
+		{
+			districtId: serviceHolder.districtId,
+		},
+		{
+			status: WorkerStatus.ACTIVE,
+		},
+		{
+			deletedAt: null,
+		},
+	];
+
+	if (query.searchTerm) {
+		andConditions.push({
+			OR: [
+				{
+					businessName: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					phone: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					address: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					experience: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+			],
+		});
+	}
+
+	if (query.workerType) {
+		andConditions.push({
+			workerType: query.workerType,
+		});
+	}
+
+	const whereCondition = {
+		AND: andConditions,
+	};
+
+	const [workers, total] = await Promise.all([
+		prisma.worker.findMany({
+			where: whereCondition,
+			take: limit,
+			skip,
+			orderBy: {
+				[sortBy]: sortOrder,
+			},
+			include: {
+				user: {
+					omit: {
+						password: true,
+					},
+				},
+				district: true,
+			},
+		}),
+
+		prisma.worker.count({
+			where: whereCondition,
+		}),
+	]);
+
+	return {
+		data: workers,
+		meta: {
+			page,
+			limit,
+			total,
+			totalPages: Math.ceil(total / limit),
+		},
+	};
+};
+
+const getMyDistrictSingleWorker = async (
+	workerId: string,
+	userId: string,
+) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
+
+	if (!user) {
+		throw new Error("User not found");
+	}
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new Error("User is blocked!");
+	}
+
+	if (user.status === UserStatus.SUSPENDED) {
+		throw new Error("User is suspended!");
+	}
+
+	if (
+		user.deletedAt ||
+		user.status === UserStatus.DELETED
+	) {
+		throw new Error("User is deleted!");
+	}
+
+	const serviceHolder = await prisma.serviceHolder.findFirst({
+		where: {
+			userId,
+			status: ServiceHolderStatus.ACTIVE,
+			deletedAt: null,
+		},
+	});
+
+	if (!serviceHolder) {
+		throw new Error(
+			"Active service holder profile not found",
+		);
+	}
+
+	const worker = await prisma.worker.findFirst({
+		where: {
+			id: workerId,
+			districtId: serviceHolder.districtId,
+			status: WorkerStatus.ACTIVE,
+			deletedAt: null,
+		},
+		include: {
+			user: {
+				omit: {
+					password: true,
+				},
+			},
+			district: true,
+		},
+	});
+
+	if (!worker) {
+		throw new Error(
+			"Worker not found in your district",
+		);
+	}
+
+	return worker;
+};
+
+
+const assignServiceRequest = async (
+	serviceRequestId: string,
+	payload: IAssignServiceRequestPayload,
+	userId: string,
+) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
+
+	if (!user) {
+		throw new Error("User not found");
+	}
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new Error("User is blocked!");
+	}
+
+	if (user.status === UserStatus.SUSPENDED) {
+		throw new Error("User is suspended!");
+	}
+
+	if (
+		user.deletedAt ||
+		user.status === UserStatus.DELETED
+	) {
+		throw new Error("User is deleted!");
+	}
+
+	const serviceHolder = await prisma.serviceHolder.findFirst({
+		where: {
+			userId,
+			status: ServiceHolderStatus.ACTIVE,
+			deletedAt: null,
+		},
+	});
+
+	if (!serviceHolder) {
+		throw new Error(
+			"Active service holder profile not found",
+		);
+	}
+
+	const serviceRequest =
+		await prisma.serviceRequest.findFirst({
+			where: {
+				id: serviceRequestId,
+				deletedAt: null,
+			},
+		});
+
+	if (!serviceRequest) {
+		throw new Error("Service request not found");
+	}
+
+	if (
+		serviceRequest.districtId !==
+		serviceHolder.districtId
+	) {
+		throw new Error(
+			"You can only assign requests from your own district",
+		);
+	}
+
+	if (
+		serviceRequest.status !==
+			ServiceRequestStatus.PENDING &&
+		serviceRequest.status !==
+			ServiceRequestStatus.REJECTED
+	) {
+		throw new Error(
+			"Only pending or rejected service requests can be assigned",
+		);
+	}
+
+	const worker = await prisma.worker.findFirst({
+		where: {
+			id: payload.workerId,
+			districtId: serviceHolder.districtId,
+			status: WorkerStatus.ACTIVE,
+			deletedAt: null,
+		},
+	});
+
+	if (!worker) {
+		throw new Error(
+			"Active worker not found in your district",
+		);
+	}
+
+	const requiredWorkerType =
+		serviceRequest.serviceType === ServiceType.PLUMBING
+			? WorkerType.PLUMBER
+			: WorkerType.ELECTRICIAN;
+
+	if (worker.workerType !== requiredWorkerType) {
+		throw new Error(
+			`This service requires a ${requiredWorkerType.toLowerCase()} worker`,
+		);
+	}
+
+	const updatedServiceRequest =
+		await prisma.serviceRequest.update({
+			where: {
+				id: serviceRequestId,
+			},
+			data: {
+				workerId: worker.id,
+				status: ServiceRequestStatus.ASSIGNED,
+				assignedAt: new Date(),
+				rejectWorkerId: null,
+				rejectionReason: null,
+				rejectedAt: null,
+			},
+			include: {
+				customer: {
+					omit: {
+						password: true,
+					},
+				},
+				district: true,
+				serviceHolder: true,
+				worker: true,
+			},
+		});
+
+	return updatedServiceRequest;
+};
 
 export const ServiceHolderServices = {
 	getMyServiceHolder,
@@ -618,5 +967,8 @@ export const ServiceHolderServices = {
 	getWorkerApplicationsByServiceHolder,
 	getSingleApplicationById,
 	approveWorkerApplication,
-	rejectWorkerApplication
+	rejectWorkerApplication,
+	getMyDistrictWorkers,
+	getMyDistrictSingleWorker,
+	assignServiceRequest
 };

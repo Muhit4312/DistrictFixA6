@@ -16,6 +16,7 @@ import { ServiceHolderApplicationRoutes } from "./module/serviceHolderApplicatio
 import { adminRoutes } from "./module/admin/admin.route";
 import { ServiceHolderRoutes } from "./module/serviceHolder/serviceHolder.route";
 import { WorkerApplicationRoutes } from "./module/workerApplication/workerApplication.route";
+import { WorkerRoutes } from "./module/worker/worker.route";
 
 const app: Application = express();
 
@@ -40,6 +41,7 @@ app.use("/api/v1/service-holder-applicaitons", ServiceHolderApplicationRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/service-holder", ServiceHolderRoutes);
 app.use("/api/v1/worker-applications",WorkerApplicationRoutes);
+app.use("/api/v1/worker",WorkerRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
 	res.status(httpStatus.OK).json({

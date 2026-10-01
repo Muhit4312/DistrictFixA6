@@ -54,5 +54,26 @@ router.patch(
 	ServiceHolderControllers.rejectWorkerApplication
 );
 
+router.get(
+	"/workers",
+	verifyAuth(Role.SERVICE_HOLDER),
+	ServiceHolderControllers.getMyDistrictWorkers
+);
+
+router.get(
+	"/workers/:id",
+	verifyAuth(Role.SERVICE_HOLDER),
+	ServiceHolderControllers.getMyDistrictSingleWorker
+);
+
+router.patch(
+	"/service-requests/:id/assign",
+	verifyAuth(Role.SERVICE_HOLDER),
+	validateRequest(
+		ServiceHolderValidations.AssignServiceRequestZodSchema,
+	),
+	ServiceHolderControllers.assignServiceRequest,
+);
+
 export const ServiceHolderRoutes = router;
 

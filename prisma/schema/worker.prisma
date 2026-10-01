@@ -1,7 +1,5 @@
-
-
 model Worker {
-    id String @id @default(ulid())
+    id String @id @default(uuid())
 
     userId String @unique
     districtId String
@@ -27,6 +25,7 @@ model Worker {
     district District @relation(fields: [districtId],references: [id],onDelete:Cascade,onUpdate: Cascade)
 
     requests ServiceRequest[]
+    rejectRequests ServiceRequest[] @relation("RejectWorker")
 
     @@index([districtId])
     @@index([workerType])

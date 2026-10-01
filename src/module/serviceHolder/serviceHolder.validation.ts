@@ -37,7 +37,15 @@ const RejectWorkerApplicationZodSchema = z.object({
 		.max(500, "Rejection reason cannot exceed 500 characters"),
 });
 
+const AssignServiceRequestZodSchema = z.object({
+	workerId: z
+		.string("Worker ID must be a string")
+		.trim()
+		.min(1, "Worker ID is required"),
+});
+
 export const ServiceHolderValidations = {
 	UpdateServiceHolderZodSchema,
-	RejectWorkerApplicationZodSchema
+	RejectWorkerApplicationZodSchema,
+	AssignServiceRequestZodSchema
 };
