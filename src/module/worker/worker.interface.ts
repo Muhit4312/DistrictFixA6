@@ -32,3 +32,7 @@ export interface IServiceRequestQuery {
 	status?: ServiceRequestStatus;
 	serviceType?: ServiceType;
 }
+
+export interface ICompleteServiceRequestPayload {
+	serviceCharge: number;
+}

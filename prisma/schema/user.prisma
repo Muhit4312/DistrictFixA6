@@ -25,7 +25,7 @@ model User {
     workerApplicationsReviewed        WorkerApplication[]        @relation("WorkerApplicationReviewer")
     serviceRequests                   ServiceRequest[]
     serviceHolders                    ServiceHolder?             @relation("ServiceHolderUser")
-    workers                          Worker?                    @relation("WorkerUser")
+    workers                          Worker?                    @relation("WorkerUser") 
 
 
     @@index([role])

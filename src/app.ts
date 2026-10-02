@@ -17,6 +17,7 @@ import { adminRoutes } from "./module/admin/admin.route";
 import { ServiceHolderRoutes } from "./module/serviceHolder/serviceHolder.route";
 import { WorkerApplicationRoutes } from "./module/workerApplication/workerApplication.route";
 import { WorkerRoutes } from "./module/worker/worker.route";
+import { getBkashIdToken } from "./lib/bkash";
 
 const app: Application = express();
 
@@ -43,10 +44,29 @@ app.use("/api/v1/service-holder", ServiceHolderRoutes);
 app.use("/api/v1/worker-applications",WorkerApplicationRoutes);
 app.use("/api/v1/worker",WorkerRoutes);
 
+app.get("/test", async (req: Request, res: Response) => {
+	try {
+
+		const grantIdTokenResult = await getBkashIdToken()
+		
+		
+		res.status(httpStatus.OK).json({
+		success: true,
+		message: "Welcome to PH Healthcare System Backend",
+		data: grantIdTokenResult
+	});
+	} catch (error) {
+		console.log({error});
+	}
+});
+
 app.get("/", async (req: Request, res: Response) => {
+	const grantIdTokenResult = await getBkashIdToken()
+	console.log({grantIdTokenResult});
 	res.status(httpStatus.OK).json({
 		success: true,
 		message: "Welcome DistrictFix Backend",
+		data: grantIdTokenResult
 	});
 });
 

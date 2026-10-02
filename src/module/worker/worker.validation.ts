@@ -71,7 +71,14 @@ const RejectServiceRequestZodSchema = z.object({
 		),
 });
 
+export const CompleteServiceRequestZodSchema = z.object({
+	serviceCharge: z
+		.number()
+		.positive("Service charge must be greater than 0"),
+});
+
 export const WorkerValidations = {
 	UpdateWorkerProfileZodSchema,
 	RejectServiceRequestZodSchema,
+	CompleteServiceRequestZodSchema
 };

@@ -8,6 +8,7 @@ model ServiceRequest {
 
     address String
     phone   String?
+    serviceCharge Decimal? @db.Decimal(10, 2)
 
     status ServiceRequestStatus @default(PENDING)
 

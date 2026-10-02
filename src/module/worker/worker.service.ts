@@ -1,7 +1,7 @@
 import { ServiceRequestStatus, UserStatus } from "../../../generated/prisma/enums";
 import { ServiceRequestWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
-import { IRejectServiceRequestPayload, IServiceRequestQuery, IUpdateWorkerProfilePayload } from "./worker.interface";
+import { ICompleteServiceRequestPayload, IRejectServiceRequestPayload, IServiceRequestQuery, IUpdateWorkerProfilePayload } from "./worker.interface";
 
 const getMyWorkerProfile = async (userId: string) => {
 	const worker = await prisma.worker.findFirst({
@@ -177,7 +177,7 @@ const getMyAssignedServices = async (
 				[sortBy]: sortOrder,
 			},
 			include: {
-				user: {
+				customer: {
 					omit: {
 						password: true,
 					},
@@ -534,6 +534,7 @@ const startServiceRequest = async (
 
 const completeServiceRequest = async (
 	id: string,
+	payload: ICompleteServiceRequestPayload,
 	userId: string,
 ) => {
 	const user = await prisma.user.findUnique({
@@ -603,6 +604,7 @@ const completeServiceRequest = async (
 		data: {
 			status: ServiceRequestStatus.COMPLETED,
 			completedAt: new Date(),
+			serviceCharge: payload.serviceCharge,
 		},
 		include: {
 			customer: {
