@@ -37,6 +37,7 @@ model ServiceRequest {
     worker   Worker? @relation(fields: [workerId], references: [id])
     rejectWorkerId String?
     rejectWorker   Worker? @relation("RejectWorker", fields: [rejectWorkerId], references: [id])
+    payment Payment?
 
 
     @@index([customerId])

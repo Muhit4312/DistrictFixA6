@@ -59,6 +59,7 @@ router.patch(
 router.patch(
 	"/assigned-services/:id/complete",
 	verifyAuth(Role.PLUMBER, Role.ELECTRICIAN),
+	validateRequest(WorkerValidations.CompleteServiceRequestZodSchema),
 	WorkerControllers.completeServiceRequest,
 );
 

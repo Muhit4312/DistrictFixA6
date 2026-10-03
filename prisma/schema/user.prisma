@@ -26,6 +26,7 @@ model User {
     serviceRequests                   ServiceRequest[]
     serviceHolders                    ServiceHolder?             @relation("ServiceHolderUser")
     workers                          Worker?                    @relation("WorkerUser") 
+    payments                         Payment[]
 
 
     @@index([role])

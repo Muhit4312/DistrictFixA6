@@ -131,6 +131,7 @@ const completeServiceRequest = catchAsync(
 		const result =
 			await WorkerServices.completeServiceRequest(
 				req.params.id as string,
+				req.body,
 				req.user.userId,
 			);
 

@@ -61,3 +61,15 @@ enum WorkerStatus {
     INACTIVE
     SUSPENDED
 }
+
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    CANCELLED
+}
+
+enum PaymentMethod {
+    BKASH
+}

@@ -18,6 +18,7 @@ import { ServiceHolderRoutes } from "./module/serviceHolder/serviceHolder.route"
 import { WorkerApplicationRoutes } from "./module/workerApplication/workerApplication.route";
 import { WorkerRoutes } from "./module/worker/worker.route";
 import { getBkashIdToken } from "./lib/bkash";
+import { PaymentRoutes } from "./module/payment/payment.route";
 
 const app: Application = express();
 
@@ -43,6 +44,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/service-holder", ServiceHolderRoutes);
 app.use("/api/v1/worker-applications",WorkerApplicationRoutes);
 app.use("/api/v1/worker",WorkerRoutes);
+app.use("/api/v1/payment",PaymentRoutes);
 
 app.get("/test", async (req: Request, res: Response) => {
 	try {
