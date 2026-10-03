@@ -8,7 +8,6 @@ const RejectServiceHolderApplicationZodSchema = z.object({
 		.max(500, "Rejection reason must not exceed 500 characters"),
 });
 
-
 export const ServiceHolderApplicationValidations = {
-    RejectServiceHolderApplicationZodSchema
-}
+	RejectServiceHolderApplicationZodSchema,
+};

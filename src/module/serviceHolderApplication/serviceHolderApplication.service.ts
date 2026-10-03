@@ -1,6 +1,10 @@
-import { ApplicationStatus, Role, UserStatus } from "../../../generated/prisma/enums";
+import {
+	ApplicationStatus,
+	Role,
+	UserStatus,
+} from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { ICreateServiceHolderApplicationPayload } from "./serviceHolderApplication.interface";
+import type { ICreateServiceHolderApplicationPayload } from "./serviceHolderApplication.interface";
 
 const createApplication = async (
 	payload: ICreateServiceHolderApplicationPayload,
@@ -54,9 +58,7 @@ const createApplication = async (
 		});
 
 	if (existingPendingApplication) {
-		throw new Error(
-			"You already have a pending Service Holder application",
-		);
+		throw new Error("You already have a pending Service Holder application");
 	}
 
 	const existingServiceHolder = await prisma.serviceHolder.findUnique({
@@ -76,7 +78,7 @@ const createApplication = async (
 			businessName: payload.businessName,
 			phone: payload.phone,
 			address: payload.address,
-			description: payload.description
+			description: payload.description,
 		},
 		include: {
 			district: true,
@@ -86,30 +88,23 @@ const createApplication = async (
 	return application;
 };
 
-
 const getMyApplications = async (userId: string) => {
-	const applications =
-		await prisma.serviceHolderApplication.findMany({
-			where: {
-				userId,
-			},
-			include: {
-				district: true,
-			},
-			orderBy: {
-				createdAt: "desc",
-			},
-		});
+	const applications = await prisma.serviceHolderApplication.findMany({
+		where: {
+			userId,
+		},
+		include: {
+			district: true,
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
 
 	return applications;
 };
 
-const getSingleApplication = async (
-	id: string,
-	userId: string,
-	role: Role,
-) => {
-
+const getSingleApplication = async (id: string, userId: string, role: Role) => {
 	if (
 		role !== Role.CUSTOMER &&
 		role !== Role.ADMIN &&
@@ -118,18 +113,16 @@ const getSingleApplication = async (
 		throw new Error("You are not authorized to view this application");
 	}
 
-	const whereCondition =
-		role === Role.CUSTOMER ? { id, userId, } : { id, };
+	const whereCondition = role === Role.CUSTOMER ? { id, userId } : { id };
 
-	const application =
-		await prisma.serviceHolderApplication.findFirst({
-			where: whereCondition,
-			include: {
-				user: true,
-				district: true,
-				reviewer: true,
-			},
-		});
+	const application = await prisma.serviceHolderApplication.findFirst({
+		where: whereCondition,
+		include: {
+			user: true,
+			district: true,
+			reviewer: true,
+		},
+	});
 
 	if (!application) {
 		throw new Error("Service Holder application not found");
@@ -142,5 +135,4 @@ export const ServiceHolderApplicationServices = {
 	createApplication,
 	getMyApplications,
 	getSingleApplication,
-
 };

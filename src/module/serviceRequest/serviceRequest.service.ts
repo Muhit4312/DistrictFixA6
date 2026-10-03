@@ -1,7 +1,10 @@
-import { ServiceRequestStatus, UserStatus } from "../../../generated/prisma/enums";
-import { ServiceRequestWhereInput } from "../../../generated/prisma/models";
-import { prisma } from "../../lib/prisma";
 import {
+	ServiceRequestStatus,
+	UserStatus,
+} from "../../../generated/prisma/enums";
+import type { ServiceRequestWhereInput } from "../../../generated/prisma/models";
+import { prisma } from "../../lib/prisma";
+import type {
 	ICancelServiceRequestPayload,
 	ICreateServiceRequestPayload,
 	IServiceRequestQuery,
@@ -179,7 +182,7 @@ const getSingleService = async (id: string, userId: string) => {
 		},
 		include: {
 			district: true,
-			payment: true
+			payment: true,
 		},
 	});
 
@@ -189,8 +192,6 @@ const getSingleService = async (id: string, userId: string) => {
 
 	return result;
 };
-
-
 
 const updateService = async (
 	id: string,
@@ -210,9 +211,7 @@ const updateService = async (
 	}
 
 	if (serviceRequest.status !== "PENDING") {
-		throw new Error(
-			"Only pending service requests can be updated",
-		);
+		throw new Error("Only pending service requests can be updated");
 	}
 
 	const result = await prisma.serviceRequest.update({
@@ -243,13 +242,11 @@ const cancelService = async (
 	}
 
 	if (
-		serviceRequest.status ===  ServiceRequestStatus.IN_PROGRESS||
+		serviceRequest.status === ServiceRequestStatus.IN_PROGRESS ||
 		serviceRequest.status === ServiceRequestStatus.COMPLETED ||
 		serviceRequest.status === ServiceRequestStatus.CANCELLED
 	) {
-		throw new Error(
-			"This service request cannot be cancelled",
-		);
+		throw new Error("This service request cannot be cancelled");
 	}
 
 	const result = await prisma.serviceRequest.update({
@@ -257,7 +254,7 @@ const cancelService = async (
 			id,
 		},
 		data: {
-			status:ServiceRequestStatus.CANCELLED,
+			status: ServiceRequestStatus.CANCELLED,
 			cancellationReason: payload.cancellationReason,
 			cancelledAt: new Date(),
 		},
@@ -266,10 +263,7 @@ const cancelService = async (
 	return result;
 };
 
-const deleteService = async (
-	id: string,
-	userId: string,
-) => {
+const deleteService = async (id: string, userId: string) => {
 	const serviceRequest = await prisma.serviceRequest.findFirst({
 		where: {
 			id,
@@ -283,9 +277,7 @@ const deleteService = async (
 	}
 
 	if (serviceRequest.status !== "PENDING") {
-		throw new Error(
-			"Only pending service requests can be deleted",
-		);
+		throw new Error("Only pending service requests can be deleted");
 	}
 
 	await prisma.serviceRequest.update({

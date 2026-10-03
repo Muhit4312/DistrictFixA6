@@ -110,7 +110,7 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
-	const {userId} = req.user
+	const { userId } = req.user;
 	if (!userId) {
 		throw new Error("User information is missing in the request");
 	}
@@ -156,8 +156,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	 await AuthServices.forgotPassword(payload);
-	
+	await AuthServices.forgotPassword(payload);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -170,12 +169,12 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	await AuthServices.resetPassword(payload);
-	
+
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: "Password Changed successfully!",
-		data:null,
+		data: null,
 	});
 });
 
@@ -187,5 +186,5 @@ export const AuthController = {
 	forgotPassword,
 	resetPassword,
 	getCurrentUser,
-	refreshToken
+	refreshToken,
 };

@@ -4,30 +4,25 @@ import { sendResponse } from "../../utils/sendResponse";
 import { ServiceHolderServices } from "./serviceHolder.service";
 import httpStatus from "http-status";
 
-const getMyServiceHolder = catchAsync(
-	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.getMyServiceHolder(
-				req.user.userId,
-			);
+const getMyServiceHolder = catchAsync(async (req: Request, res: Response) => {
+	const result = await ServiceHolderServices.getMyServiceHolder(
+		req.user.userId,
+	);
 
-		sendResponse(res, {
-			statusCode: httpStatus.OK,
-			success: true,
-			message:
-				"Service Holder profile retrieved successfully",
-			data: result,
-		});
-	},
-);
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Service Holder profile retrieved successfully",
+		data: result,
+	});
+});
 
 const updateMyServiceHolder = catchAsync(
 	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.updateMyServiceHolder(
-				req.user.userId,
-				req.body,
-			);
+		const result = await ServiceHolderServices.updateMyServiceHolder(
+			req.user.userId,
+			req.body,
+		);
 
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
@@ -56,11 +51,10 @@ const getServiceHolderServices = catchAsync(
 
 const getServiceHolderServiceDetails = catchAsync(
 	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.getServiceHolderServiceDetails(
-				req.params.id as string,
-				req.user.userId,
-			);
+		const result = await ServiceHolderServices.getServiceHolderServiceDetails(
+			req.params.id as string,
+			req.user.userId,
+		);
 
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
@@ -82,8 +76,7 @@ const getWorkerApplicationsByServiceHolder = catchAsync(
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
 			success: true,
-			message:
-				"Worker applications retrieved successfully",
+			message: "Worker applications retrieved successfully",
 			data: result.data,
 			meta: result.meta,
 		});
@@ -92,17 +85,15 @@ const getWorkerApplicationsByServiceHolder = catchAsync(
 
 const getWorkerApplicationById = catchAsync(
 	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.getSingleApplicationById(
-				req.params.id as string,
-				req.user.userId,
-			);
+		const result = await ServiceHolderServices.getSingleApplicationById(
+			req.params.id as string,
+			req.user.userId,
+		);
 
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
 			success: true,
-			message:
-				"Worker application retrieved successfully",
+			message: "Worker application retrieved successfully",
 			data: result,
 		});
 	},
@@ -110,67 +101,58 @@ const getWorkerApplicationById = catchAsync(
 
 const approveWorkerApplication = catchAsync(
 	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.approveWorkerApplication(
-				req.params.id as string,
-				req.user.userId,
-			);
+		const result = await ServiceHolderServices.approveWorkerApplication(
+			req.params.id as string,
+			req.user.userId,
+		);
 
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
 			success: true,
-			message:
-				"Worker application approved successfully",
+			message: "Worker application approved successfully",
 			data: result,
 		});
 	},
 );
-
 
 const rejectWorkerApplication = catchAsync(
 	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.rejectWorkerApplication(
-				req.params.id as string,
-				req.user.userId,
-				req.body,
-			);
+		const result = await ServiceHolderServices.rejectWorkerApplication(
+			req.params.id as string,
+			req.user.userId,
+			req.body,
+		);
 
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
 			success: true,
-			message:
-				"Worker application rejected successfully",
+			message: "Worker application rejected successfully",
 			data: result,
 		});
 	},
 );
 
-const getMyDistrictWorkers = catchAsync(
-	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.getMyDistrictWorkers(
-				req.query,
-				req.user.userId,
-			);
+const getMyDistrictWorkers = catchAsync(async (req: Request, res: Response) => {
+	const result = await ServiceHolderServices.getMyDistrictWorkers(
+		req.query,
+		req.user.userId,
+	);
 
-		sendResponse(res, {
-			statusCode: httpStatus.OK,
-			success: true,
-			message: "District workers retrieved successfully",
-			data: result.data,
-			meta: result.meta,
-		});
-	},
-);
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "District workers retrieved successfully",
+		data: result.data,
+		meta: result.meta,
+	});
+});
 
 const getMyDistrictSingleWorker = catchAsync(
 	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.getMyDistrictSingleWorker(
-				req.params.id as string,
-				req.user.userId,
-			);
+		const result = await ServiceHolderServices.getMyDistrictSingleWorker(
+			req.params.id as string,
+			req.user.userId,
+		);
 
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
@@ -181,24 +163,20 @@ const getMyDistrictSingleWorker = catchAsync(
 	},
 );
 
-const assignServiceRequest = catchAsync(
-	async (req: Request, res: Response) => {
-		const result =
-			await ServiceHolderServices.assignServiceRequest(
-				req.params.id as string,
-				req.body,
-				req.user.userId,
-			);
+const assignServiceRequest = catchAsync(async (req: Request, res: Response) => {
+	const result = await ServiceHolderServices.assignServiceRequest(
+		req.params.id as string,
+		req.body,
+		req.user.userId,
+	);
 
-		sendResponse(res, {
-			statusCode: httpStatus.OK,
-			success: true,
-			message: "Service request assigned successfully",
-			data: result,
-		});
-	},
-);
-
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Service request assigned successfully",
+		data: result,
+	});
+});
 
 export const ServiceHolderControllers = {
 	getMyServiceHolder,
@@ -212,5 +190,4 @@ export const ServiceHolderControllers = {
 	getMyDistrictWorkers,
 	getMyDistrictSingleWorker,
 	assignServiceRequest,
-	
 };

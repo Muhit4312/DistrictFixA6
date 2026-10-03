@@ -15,11 +15,15 @@ import path from "path";
 import { transporter } from "../../lib/nodemailer";
 import config from "../../config/env.config";
 import ejs from "ejs";
-import {  AuthProvider, Role, UserStatus } from "../../../generated/prisma/enums";
+import {
+	AuthProvider,
+	Role,
+	UserStatus,
+} from "../../../generated/prisma/enums";
 import { jwtUtils } from "../../utils/jwt";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import { googleClient } from "../../lib/googleAuth";
-import { TokenPayload } from "google-auth-library";
+import type { TokenPayload } from "google-auth-library";
 
 const registerCustomer = async (payload: IRegisterUserPayload) => {
 	const { name, password } = payload;
@@ -257,7 +261,6 @@ const loginUser = async (payload: ILoginUserPayload) => {
 	};
 };
 
-
 const googleLogin = async (payload: IGoogleLoginPayload) => {
 	let googleIdTokenPayload: TokenPayload | null | undefined = null;
 	try {
@@ -338,9 +341,7 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 					emailVerified: true,
 					imageUrl: googleIdTokenPayload.picture ?? "",
 					profile: {
-						create: {
-							
-						},
+						create: {},
 					},
 				},
 			});
@@ -412,19 +413,18 @@ const refreshToken = async (token: string) => {
 		config.jwt_refresh_secret,
 	);
 	console.log(verifiedRefreshToken);
-	
 
-	 if(!verifiedRefreshToken){
-        throw new Error("invalid refresh token")
-    }
+	if (!verifiedRefreshToken) {
+		throw new Error("invalid refresh token");
+	}
 
-	 const {userId} = verifiedRefreshToken as JwtPayload;
+	const { userId } = verifiedRefreshToken as JwtPayload;
 
-    const user = await prisma.user.findUniqueOrThrow({
-        where : {
-            id: userId
-        }
-    })
+	const user = await prisma.user.findUniqueOrThrow({
+		where: {
+			id: userId,
+		},
+	});
 
 	if (user.status === UserStatus.BLOCKED) {
 		throw new Error("User is blocked!");
@@ -444,7 +444,7 @@ const refreshToken = async (token: string) => {
 		role: user.role,
 	};
 
-	console.log({jwtPayload});
+	console.log({ jwtPayload });
 
 	const accessToken = jwtUtils.createToken(
 		jwtPayload,
@@ -458,7 +458,7 @@ const refreshToken = async (token: string) => {
 		config.jwt_refresh_expires_in as SignOptions,
 	);
 
-	console.log({refreshToken,accessToken});
+	console.log({ refreshToken, accessToken });
 
 	return {
 		accessToken,
@@ -608,5 +608,5 @@ export const AuthServices = {
 	forgotPassword,
 	resetPassword,
 	getCurrentUser,
-	refreshToken
+	refreshToken,
 };

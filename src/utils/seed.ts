@@ -53,9 +53,7 @@ export const seedAdmin = async () => {
 		const { admin_name, admin_email, admin_password } = config;
 
 		if (!admin_name || !admin_email || !admin_password) {
-			throw new Error(
-				"Admin Name, Email, or Password is missing in env.",
-			);
+			throw new Error("Admin Name, Email, or Password is missing in env.");
 		}
 
 		const existingUser = await prisma.user.findUnique({
@@ -70,9 +68,7 @@ export const seedAdmin = async () => {
 				return;
 			}
 
-			throw new Error(
-				`Email ${admin_email} is already used by another user.`,
-			);
+			throw new Error(`Email ${admin_email} is already used by another user.`);
 		}
 
 		const hashedPassword = await bcrypt.hash(
@@ -109,8 +105,11 @@ export const seedServiceHolder = async () => {
 			return;
 		}
 
-		const { service_holder_name, service_holder_email, service_holder_password } =
-			config;
+		const {
+			service_holder_name,
+			service_holder_email,
+			service_holder_password,
+		} = config;
 
 		if (
 			!service_holder_name ||
@@ -160,9 +159,7 @@ export const seedPlumber = async () => {
 		const { plumber_name, plumber_email, plumber_password } = config;
 
 		if (!plumber_name || !plumber_email || !plumber_password) {
-			throw new Error(
-				"Plumber Name, Email, or Password is missing in env.",
-			);
+			throw new Error("Plumber Name, Email, or Password is missing in env.");
 		}
 
 		const hashedPassword = await bcrypt.hash(
@@ -230,6 +227,3 @@ export const seedElectrician = async () => {
 		console.error("Error seeding Electrician:", error);
 	}
 };
-
-
-

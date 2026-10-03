@@ -1,4 +1,7 @@
-import { WorkerApplicationStatus, WorkerType } from "../../../generated/prisma/enums";
+import type {
+	WorkerApplicationStatus,
+	WorkerType,
+} from "../../../generated/prisma/enums";
 
 export interface ICreateWorkerApplicationPayload {
 	workerType: WorkerType;

@@ -1,11 +1,28 @@
 import path from "path";
-import { ServiceHolderStatus, ServiceRequestStatus, ServiceType, UserStatus, WorkerApplicationStatus, WorkerStatus, WorkerType } from "../../../generated/prisma/enums";
-import { ServiceRequestWhereInput, WorkerApplicationWhereInput, WorkerWhereInput } from "../../../generated/prisma/models";
+import {
+	ServiceHolderStatus,
+	ServiceRequestStatus,
+	ServiceType,
+	UserStatus,
+	WorkerApplicationStatus,
+	WorkerStatus,
+	WorkerType,
+} from "../../../generated/prisma/enums";
+import type {
+	ServiceRequestWhereInput,
+	WorkerApplicationWhereInput,
+	WorkerWhereInput,
+} from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
-import { IServiceRequestQuery } from "../serviceRequest/serviceRequest.interface";
-import { IWorkerApplicationQuery } from "../workerApplication/workerApplication.interface";
-import { IAssignServiceRequestPayload, IRejectWorkerApplicationPayload, IServiceHolderWorkerQuery, IUpdateServiceHolderPayload } from "./serviceHolder.interface";
-import ejs from "ejs"
+import type { IServiceRequestQuery } from "../serviceRequest/serviceRequest.interface";
+import type { IWorkerApplicationQuery } from "../workerApplication/workerApplication.interface";
+import type {
+	IAssignServiceRequestPayload,
+	IRejectWorkerApplicationPayload,
+	IServiceHolderWorkerQuery,
+	IUpdateServiceHolderPayload,
+} from "./serviceHolder.interface";
+import ejs from "ejs";
 import { transporter } from "../../lib/nodemailer";
 import config from "../../config/env.config";
 
@@ -47,21 +64,20 @@ const updateMyServiceHolder = async (
 		throw new Error("Service Holder profile not found");
 	}
 
-	const updatedServiceHolder =
-		await prisma.serviceHolder.update({
-			where: {
-				id: serviceHolder.id,
-			},
-			data: payload,
-			include: {
-				district: true,
-				user: {
-					omit: {
-						password: true,
-					},
+	const updatedServiceHolder = await prisma.serviceHolder.update({
+		where: {
+			id: serviceHolder.id,
+		},
+		data: payload,
+		include: {
+			district: true,
+			user: {
+				omit: {
+					password: true,
 				},
 			},
-		});
+		},
+	});
 
 	return updatedServiceHolder;
 };
@@ -203,10 +219,7 @@ const getServiceHolderServices = async (
 	};
 };
 
-const getServiceHolderServiceDetails = async (
-	id: string,
-	userId: string,
-) => {
+const getServiceHolderServiceDetails = async (id: string, userId: string) => {
 	const serviceHolder = await prisma.serviceHolder.findFirst({
 		where: {
 			userId,
@@ -245,36 +258,30 @@ const getWorkerApplicationsByServiceHolder = async (
 	query: IWorkerApplicationQuery,
 	userId: string,
 ) => {
-	const serviceHolder =
-		await prisma.serviceHolder.findFirst({
-			where: {
-				userId,
-				deletedAt: null,
-				status: "ACTIVE",
-			},
-		});
+	const serviceHolder = await prisma.serviceHolder.findFirst({
+		where: {
+			userId,
+			deletedAt: null,
+			status: "ACTIVE",
+		},
+	});
 
 	if (!serviceHolder) {
 		throw new Error("Service Holder profile not found");
 	}
 
-	const limit = Math.min(
-		Math.max(Number(query.limit) || 10, 1),
-		50,
-	);
+	const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
 
 	const page = Math.max(Number(query.page) || 1, 1);
 
 	const skip = (page - 1) * limit;
 
 	const sortBy =
-		query.sortBy &&
-			["createdAt", "updatedAt"].includes(query.sortBy)
+		query.sortBy && ["createdAt", "updatedAt"].includes(query.sortBy)
 			? query.sortBy
 			: "createdAt";
 
-	const sortOrder =
-		query.sortOrder === "asc" ? "asc" : "desc";
+	const sortOrder = query.sortOrder === "asc" ? "asc" : "desc";
 
 	const andConditions: WorkerApplicationWhereInput[] = [
 		{
@@ -357,38 +364,33 @@ const getWorkerApplicationsByServiceHolder = async (
 	};
 };
 
-const getSingleApplicationById = async (
-	id: string,
-	userId: string,
-) => {
-	const serviceHolder =
-		await prisma.serviceHolder.findFirst({
-			where: {
-				userId,
-				deletedAt: null,
-				status: "ACTIVE",
-			},
-		});
+const getSingleApplicationById = async (id: string, userId: string) => {
+	const serviceHolder = await prisma.serviceHolder.findFirst({
+		where: {
+			userId,
+			deletedAt: null,
+			status: "ACTIVE",
+		},
+	});
 
 	if (!serviceHolder) {
 		throw new Error("Service Holder profile not found");
 	}
 
-	const application =
-		await prisma.workerApplication.findFirst({
-			where: {
-				id,
-				districtId: serviceHolder.districtId,
-			},
-			include: {
-				user: {
-					omit: {
-						password: true,
-					},
+	const application = await prisma.workerApplication.findFirst({
+		where: {
+			id,
+			districtId: serviceHolder.districtId,
+		},
+		include: {
+			user: {
+				omit: {
+					password: true,
 				},
-				district: true,
 			},
-		});
+			district: true,
+		},
+	});
 
 	if (!application) {
 		throw new Error("Worker application not found");
@@ -397,74 +399,64 @@ const getSingleApplicationById = async (
 	return application;
 };
 
-const approveWorkerApplication = async (
-	id: string,
-	userId: string,
-) => {
-	const serviceHolder =
-		await prisma.serviceHolder.findFirst({
-			where: {
-				userId,
-				deletedAt: null,
-				status: "ACTIVE",
-			},
-		});
+const approveWorkerApplication = async (id: string, userId: string) => {
+	const serviceHolder = await prisma.serviceHolder.findFirst({
+		where: {
+			userId,
+			deletedAt: null,
+			status: "ACTIVE",
+		},
+	});
 
 	if (!serviceHolder) {
 		throw new Error("Service Holder profile not found");
 	}
 
-	const application =
-		await prisma.workerApplication.findFirst({
-			where: {
-				id,
-				districtId: serviceHolder.districtId,
-			},
-			include: {
-				user: {
-					omit: {
-						password: true
-					}
+	const application = await prisma.workerApplication.findFirst({
+		where: {
+			id,
+			districtId: serviceHolder.districtId,
+		},
+		include: {
+			user: {
+				omit: {
+					password: true,
 				},
-				district: true
-			}
-		});
-
-
+			},
+			district: true,
+		},
+	});
 
 	if (!application) {
 		throw new Error("Worker application not found");
 	}
 
-	if (
-		application.status !== WorkerApplicationStatus.PENDING) {
-		throw new Error("Only pending applications can be approved",);
+	if (application.status !== WorkerApplicationStatus.PENDING) {
+		throw new Error("Only pending applications can be approved");
 	}
 
-	const existingWorker =
-		await prisma.worker.findUnique({
-			where: {
-				userId: application.userId,
-			},
-		});
+	const existingWorker = await prisma.worker.findUnique({
+		where: {
+			userId: application.userId,
+		},
+	});
 
 	if (existingWorker) {
 		throw new Error("User is already a worker");
 	}
 
 	const result = await prisma.$transaction(async (tx) => {
-		const updatedApplication =
-			await tx.workerApplication.update({
-				where: {
-					id: application.id,
-				},
-				data: {
-					status: WorkerApplicationStatus.APPROVED,
-					reviewedById: userId,
-					reviewedAt: new Date(),
-					rejectionReason: null,
-				},
-			});
+		const updatedApplication = await tx.workerApplication.update({
+			where: {
+				id: application.id,
+			},
+			data: {
+				status: WorkerApplicationStatus.APPROVED,
+				reviewedById: userId,
+				reviewedAt: new Date(),
+				rejectionReason: null,
+			},
+		});
 
 		await tx.user.update({
 			where: {
@@ -503,19 +495,14 @@ const approveWorkerApplication = async (
 		await transporter.sendMail({
 			from: `"DistrictFix" <${config.email_sender}>`,
 			to: application.user.email,
-			subject:
-				"Your DistrictFix Worker Application Has Been Approved",
+			subject: "Your DistrictFix Worker Application Has Been Approved",
 			html,
 		});
 	} catch (error) {
-		console.error(
-			"Failed to send Worker approval email:",
-			error,
-		);
+		console.error("Failed to send Worker approval email:", error);
 	}
 
-
-	return result
+	return result;
 };
 
 const rejectWorkerApplication = async (
@@ -523,62 +510,54 @@ const rejectWorkerApplication = async (
 	userId: string,
 	payload: IRejectWorkerApplicationPayload,
 ) => {
-	const serviceHolder =
-		await prisma.serviceHolder.findFirst({
-			where: {
-				userId,
-				deletedAt: null,
-				status: "ACTIVE",
-			},
-		});
+	const serviceHolder = await prisma.serviceHolder.findFirst({
+		where: {
+			userId,
+			deletedAt: null,
+			status: "ACTIVE",
+		},
+	});
 
 	if (!serviceHolder) {
 		throw new Error("Service Holder profile not found");
 	}
 
-	const application =
-		await prisma.workerApplication.findFirst({
-			where: {
-				id,
-				districtId: serviceHolder.districtId,
-			},
-			include: {
-				user: {
-					select: {
-						id: true,
-						name: true,
-						email: true,
-					},
+	const application = await prisma.workerApplication.findFirst({
+		where: {
+			id,
+			districtId: serviceHolder.districtId,
+		},
+		include: {
+			user: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
 				},
-				district: true,
 			},
-		});
+			district: true,
+		},
+	});
 
 	if (!application) {
 		throw new Error("Worker application not found");
 	}
 
-	if (
-		application.status !==
-		WorkerApplicationStatus.PENDING
-	) {
-		throw new Error(
-			"Only pending applications can be rejected",
-		);
+	if (application.status !== WorkerApplicationStatus.PENDING) {
+		throw new Error("Only pending applications can be rejected");
 	}
 
-	const rejectedApplication =
-		await prisma.workerApplication.update({
-			where: {
-				id: application.id,
-			},
-			data: {
-				status: WorkerApplicationStatus.REJECTED,
-				rejectionReason: payload.rejectionReason,
-				reviewedById: userId,
-				reviewedAt: new Date(),
-			},
-		});
+	const rejectedApplication = await prisma.workerApplication.update({
+		where: {
+			id: application.id,
+		},
+		data: {
+			status: WorkerApplicationStatus.REJECTED,
+			rejectionReason: payload.rejectionReason,
+			reviewedById: userId,
+			reviewedAt: new Date(),
+		},
+	});
 	try {
 		const templatePath = path.join(
 			process.cwd(),
@@ -595,15 +574,11 @@ const rejectWorkerApplication = async (
 		await transporter.sendMail({
 			from: `"DistrictFix" <${config.email_sender}>`,
 			to: application.user.email,
-			subject:
-				"Update on Your DistrictFix Worker Application",
+			subject: "Update on Your DistrictFix Worker Application",
 			html,
 		});
 	} catch (error) {
-		console.error(
-			"Failed to send Worker rejection email:",
-			error,
-		);
+		console.error("Failed to send Worker rejection email:", error);
 	}
 
 	return rejectedApplication;
@@ -631,10 +606,7 @@ const getMyDistrictWorkers = async (
 		throw new Error("User is suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 
@@ -647,15 +619,10 @@ const getMyDistrictWorkers = async (
 	});
 
 	if (!serviceHolder) {
-		throw new Error(
-			"Active service holder profile not found",
-		);
+		throw new Error("Active service holder profile not found");
 	}
 
-	const limit = Math.min(
-		Math.max(Number(query.limit) || 10, 1),
-		50,
-	);
+	const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
 
 	const page = Math.max(Number(query.page) || 1, 1);
 
@@ -663,14 +630,11 @@ const getMyDistrictWorkers = async (
 
 	const sortBy =
 		query.sortBy &&
-			["createdAt", "updatedAt", "experience"].includes(
-				query.sortBy,
-			)
+		["createdAt", "updatedAt", "experience"].includes(query.sortBy)
 			? query.sortBy
 			: "createdAt";
 
-	const sortOrder =
-		query.sortOrder === "asc" ? "asc" : "desc";
+	const sortOrder = query.sortOrder === "asc" ? "asc" : "desc";
 
 	const andConditions: WorkerWhereInput[] = [
 		{
@@ -759,10 +723,7 @@ const getMyDistrictWorkers = async (
 	};
 };
 
-const getMyDistrictSingleWorker = async (
-	workerId: string,
-	userId: string,
-) => {
+const getMyDistrictSingleWorker = async (workerId: string, userId: string) => {
 	const user = await prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -781,10 +742,7 @@ const getMyDistrictSingleWorker = async (
 		throw new Error("User is suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 
@@ -797,9 +755,7 @@ const getMyDistrictSingleWorker = async (
 	});
 
 	if (!serviceHolder) {
-		throw new Error(
-			"Active service holder profile not found",
-		);
+		throw new Error("Active service holder profile not found");
 	}
 
 	const worker = await prisma.worker.findFirst({
@@ -820,14 +776,11 @@ const getMyDistrictSingleWorker = async (
 	});
 
 	if (!worker) {
-		throw new Error(
-			"Worker not found in your district",
-		);
+		throw new Error("Worker not found in your district");
 	}
 
 	return worker;
 };
-
 
 const assignServiceRequest = async (
 	serviceRequestId: string,
@@ -852,10 +805,7 @@ const assignServiceRequest = async (
 		throw new Error("User is suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 
@@ -868,37 +818,27 @@ const assignServiceRequest = async (
 	});
 
 	if (!serviceHolder) {
-		throw new Error(
-			"Active service holder profile not found",
-		);
+		throw new Error("Active service holder profile not found");
 	}
 
-	const serviceRequest =
-		await prisma.serviceRequest.findFirst({
-			where: {
-				id: serviceRequestId,
-				deletedAt: null,
-			},
-		});
+	const serviceRequest = await prisma.serviceRequest.findFirst({
+		where: {
+			id: serviceRequestId,
+			deletedAt: null,
+		},
+	});
 
 	if (!serviceRequest) {
 		throw new Error("Service request not found");
 	}
 
-	if (
-		serviceRequest.districtId !==
-		serviceHolder.districtId
-	) {
-		throw new Error(
-			"You can only assign requests from your own district",
-		);
+	if (serviceRequest.districtId !== serviceHolder.districtId) {
+		throw new Error("You can only assign requests from your own district");
 	}
 
 	if (
-		serviceRequest.status !==
-			ServiceRequestStatus.PENDING &&
-		serviceRequest.status !==
-			ServiceRequestStatus.REJECTED
+		serviceRequest.status !== ServiceRequestStatus.PENDING &&
+		serviceRequest.status !== ServiceRequestStatus.REJECTED
 	) {
 		throw new Error(
 			"Only pending or rejected service requests can be assigned",
@@ -915,9 +855,7 @@ const assignServiceRequest = async (
 	});
 
 	if (!worker) {
-		throw new Error(
-			"Active worker not found in your district",
-		);
+		throw new Error("Active worker not found in your district");
 	}
 
 	const requiredWorkerType =
@@ -931,30 +869,29 @@ const assignServiceRequest = async (
 		);
 	}
 
-	const updatedServiceRequest =
-		await prisma.serviceRequest.update({
-			where: {
-				id: serviceRequestId,
-			},
-			data: {
-				workerId: worker.id,
-				status: ServiceRequestStatus.ASSIGNED,
-				assignedAt: new Date(),
-				rejectWorkerId: null,
-				rejectionReason: null,
-				rejectedAt: null,
-			},
-			include: {
-				customer: {
-					omit: {
-						password: true,
-					},
+	const updatedServiceRequest = await prisma.serviceRequest.update({
+		where: {
+			id: serviceRequestId,
+		},
+		data: {
+			workerId: worker.id,
+			status: ServiceRequestStatus.ASSIGNED,
+			assignedAt: new Date(),
+			rejectWorkerId: null,
+			rejectionReason: null,
+			rejectedAt: null,
+		},
+		include: {
+			customer: {
+				omit: {
+					password: true,
 				},
-				district: true,
-				serviceHolder: true,
-				worker: true,
 			},
-		});
+			district: true,
+			serviceHolder: true,
+			worker: true,
+		},
+	});
 
 	return updatedServiceRequest;
 };
@@ -970,5 +907,5 @@ export const ServiceHolderServices = {
 	rejectWorkerApplication,
 	getMyDistrictWorkers,
 	getMyDistrictSingleWorker,
-	assignServiceRequest
+	assignServiceRequest,
 };

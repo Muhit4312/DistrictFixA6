@@ -19,7 +19,6 @@ export const verifyAuth = (...requiredRoles: Role[]) => {
 		}
 
 		const verifiedToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
-		
 
 		if (!verifiedToken) {
 			throw new Error("Invalid Token");

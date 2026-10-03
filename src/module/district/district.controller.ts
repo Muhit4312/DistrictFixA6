@@ -25,10 +25,7 @@ const getAllDistricts = async (req: Request, res: Response) => {
 	});
 };
 
-const getSingleDistrict = async (
-	req: Request,
-	res: Response,
-) => {
+const getSingleDistrict = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	const result = await DistrictService.getSingleDistrict(id as string);
@@ -41,16 +38,10 @@ const getSingleDistrict = async (
 	});
 };
 
-const updateDistrict = async (
-	req: Request,
-	res: Response,
-) => {
+const updateDistrict = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const result = await DistrictService.updateDistrict(
-		id as string,
-		req.body,
-	);
+	const result = await DistrictService.updateDistrict(id as string, req.body);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -58,17 +49,12 @@ const updateDistrict = async (
 		message: "District updated successfully",
 		data: result,
 	});
-
-	
 };
 
-const deleteDistrict = async (
-	req: Request,
-	res: Response,
-) => {
+const deleteDistrict = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	await DistrictService.deleteDistrict(id as string) ;
+	await DistrictService.deleteDistrict(id as string);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

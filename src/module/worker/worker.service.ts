@@ -1,7 +1,15 @@
-import { ServiceRequestStatus, UserStatus } from "../../../generated/prisma/enums";
-import { ServiceRequestWhereInput } from "../../../generated/prisma/models";
+import {
+	ServiceRequestStatus,
+	UserStatus,
+} from "../../../generated/prisma/enums";
+import type { ServiceRequestWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
-import { ICompleteServiceRequestPayload, IRejectServiceRequestPayload, IServiceRequestQuery, IUpdateWorkerProfilePayload } from "./worker.interface";
+import type {
+	ICompleteServiceRequestPayload,
+	IRejectServiceRequestPayload,
+	IServiceRequestQuery,
+	IUpdateWorkerProfilePayload,
+} from "./worker.interface";
 
 const getMyWorkerProfile = async (userId: string) => {
 	const worker = await prisma.worker.findFirst({
@@ -56,7 +64,7 @@ const updateMyWorkerProfile = async (
 		},
 	});
 
-	return result
+	return result;
 };
 
 const getMyAssignedServices = async (
@@ -81,10 +89,7 @@ const getMyAssignedServices = async (
 		throw new Error("User is Suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 
@@ -100,23 +105,18 @@ const getMyAssignedServices = async (
 		throw new Error("Worker profile not found");
 	}
 
-	const limit = Math.min(
-		Math.max(Number(query.limit) || 10, 1),
-		50,
-	);
+	const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
 
 	const page = Math.max(Number(query.page) || 1, 1);
 
 	const skip = (page - 1) * limit;
 
 	const sortBy =
-		query.sortBy &&
-			["createdAt", "updatedAt"].includes(query.sortBy)
+		query.sortBy && ["createdAt", "updatedAt"].includes(query.sortBy)
 			? query.sortBy
 			: "createdAt";
 
-	const sortOrder =
-		query.sortOrder === "asc" ? "asc" : "desc";
+	const sortOrder = query.sortOrder === "asc" ? "asc" : "desc";
 
 	const andConditions: ServiceRequestWhereInput[] = [
 		{
@@ -203,11 +203,7 @@ const getMyAssignedServices = async (
 	};
 };
 
-const getMyAssignedSingleService = async (
-	id: string,
-	userId: string,
-) => {
-
+const getMyAssignedSingleService = async (id: string, userId: string) => {
 	const user = await prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -226,10 +222,7 @@ const getMyAssignedSingleService = async (
 		throw new Error("User is Suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 	const worker = await prisma.worker.findFirst({
@@ -244,38 +237,31 @@ const getMyAssignedSingleService = async (
 		throw new Error("Worker profile not found");
 	}
 
-	const serviceRequest =
-		await prisma.serviceRequest.findFirst({
-			where: {
-				id,
-				workerId: worker.id,
-				deletedAt: null,
-			},
-			include: {
-				customer: {
-					omit: {
-						password: true,
-					},
+	const serviceRequest = await prisma.serviceRequest.findFirst({
+		where: {
+			id,
+			workerId: worker.id,
+			deletedAt: null,
+		},
+		include: {
+			customer: {
+				omit: {
+					password: true,
 				},
-				district: true,
-				serviceHolder: true,
 			},
-		});
+			district: true,
+			serviceHolder: true,
+		},
+	});
 
 	if (!serviceRequest) {
-		throw new Error(
-			"Assigned service request not found",
-		);
+		throw new Error("Assigned service request not found");
 	}
 
 	return serviceRequest;
 };
 
-const acceptServiceRequest = async (
-	id: string,
-	userId: string,
-) => {
-
+const acceptServiceRequest = async (id: string, userId: string) => {
 	const user = await prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -294,10 +280,7 @@ const acceptServiceRequest = async (
 		throw new Error("User is Suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 	const worker = await prisma.worker.findFirst({
@@ -312,28 +295,20 @@ const acceptServiceRequest = async (
 		throw new Error("Worker profile not found");
 	}
 
-	const serviceRequest =
-		await prisma.serviceRequest.findFirst({
-			where: {
-				id,
-				workerId: worker.id,
-				deletedAt: null,
-			},
-		});
+	const serviceRequest = await prisma.serviceRequest.findFirst({
+		where: {
+			id,
+			workerId: worker.id,
+			deletedAt: null,
+		},
+	});
 
 	if (!serviceRequest) {
-		throw new Error(
-			"Assigned service request not found",
-		);
+		throw new Error("Assigned service request not found");
 	}
 
-	if (
-		serviceRequest.status !==
-		ServiceRequestStatus.ASSIGNED
-	) {
-		throw new Error(
-			"Only assigned service requests can be accepted",
-		);
+	if (serviceRequest.status !== ServiceRequestStatus.ASSIGNED) {
+		throw new Error("Only assigned service requests can be accepted");
 	}
 
 	return await prisma.serviceRequest.update({
@@ -379,10 +354,7 @@ const rejectServiceRequest = async (
 		throw new Error("User is Suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 	const worker = await prisma.worker.findFirst({
@@ -397,28 +369,20 @@ const rejectServiceRequest = async (
 		throw new Error("Worker profile not found");
 	}
 
-	const serviceRequest =
-		await prisma.serviceRequest.findFirst({
-			where: {
-				id,
-				workerId: worker.id,
-				deletedAt: null,
-			},
-		});
+	const serviceRequest = await prisma.serviceRequest.findFirst({
+		where: {
+			id,
+			workerId: worker.id,
+			deletedAt: null,
+		},
+	});
 
 	if (!serviceRequest) {
-		throw new Error(
-			"Assigned service request not found",
-		);
+		throw new Error("Assigned service request not found");
 	}
 
-	if (
-		serviceRequest.status !==
-		ServiceRequestStatus.ASSIGNED
-	) {
-		throw new Error(
-			"Only assigned service requests can be rejected",
-		);
+	if (serviceRequest.status !== ServiceRequestStatus.ASSIGNED) {
+		throw new Error("Only assigned service requests can be rejected");
 	}
 
 	const result = await prisma.serviceRequest.update({
@@ -430,7 +394,7 @@ const rejectServiceRequest = async (
 			rejectionReason: payload.rejectionReason,
 			rejectedAt: new Date(),
 			workerId: null,
-			rejectWorkerId: worker.id
+			rejectWorkerId: worker.id,
 		},
 		include: {
 			customer: {
@@ -440,18 +404,14 @@ const rejectServiceRequest = async (
 			},
 			district: true,
 			serviceHolder: true,
-			rejectWorker: true
+			rejectWorker: true,
 		},
 	});
 
-	return result
+	return result;
 };
 
-const startServiceRequest = async (
-	id: string,
-	userId: string,
-) => {
-
+const startServiceRequest = async (id: string, userId: string) => {
 	const user = await prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -470,10 +430,7 @@ const startServiceRequest = async (
 		throw new Error("User is Suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 	const worker = await prisma.worker.findFirst({
@@ -488,28 +445,20 @@ const startServiceRequest = async (
 		throw new Error("Worker profile not found");
 	}
 
-	const serviceRequest =
-		await prisma.serviceRequest.findFirst({
-			where: {
-				id,
-				workerId: worker.id,
-				deletedAt: null,
-			},
-		});
+	const serviceRequest = await prisma.serviceRequest.findFirst({
+		where: {
+			id,
+			workerId: worker.id,
+			deletedAt: null,
+		},
+	});
 
 	if (!serviceRequest) {
-		throw new Error(
-			"Assigned service request not found",
-		);
+		throw new Error("Assigned service request not found");
 	}
 
-	if (
-		serviceRequest.status !==
-		ServiceRequestStatus.ACCEPTED
-	) {
-		throw new Error(
-			"Only accepted service requests can be started",
-		);
+	if (serviceRequest.status !== ServiceRequestStatus.ACCEPTED) {
+		throw new Error("Only accepted service requests can be started");
 	}
 
 	return await prisma.serviceRequest.update({
@@ -555,10 +504,7 @@ const completeServiceRequest = async (
 		throw new Error("User is Suspended!");
 	}
 
-	if (
-		user.deletedAt ||
-		user.status === UserStatus.DELETED
-	) {
+	if (user.deletedAt || user.status === UserStatus.DELETED) {
 		throw new Error("User is deleted!");
 	}
 	const worker = await prisma.worker.findFirst({
@@ -573,28 +519,20 @@ const completeServiceRequest = async (
 		throw new Error("Worker profile not found");
 	}
 
-	const serviceRequest =
-		await prisma.serviceRequest.findFirst({
-			where: {
-				id,
-				workerId: worker.id,
-				deletedAt: null,
-			},
-		});
+	const serviceRequest = await prisma.serviceRequest.findFirst({
+		where: {
+			id,
+			workerId: worker.id,
+			deletedAt: null,
+		},
+	});
 
 	if (!serviceRequest) {
-		throw new Error(
-			"Assigned service request not found",
-		);
+		throw new Error("Assigned service request not found");
 	}
 
-	if (
-		serviceRequest.status !==
-		ServiceRequestStatus.IN_PROGRESS
-	) {
-		throw new Error(
-			"Only in-progress service requests can be completed",
-		);
+	if (serviceRequest.status !== ServiceRequestStatus.IN_PROGRESS) {
+		throw new Error("Only in-progress service requests can be completed");
 	}
 
 	return await prisma.serviceRequest.update({

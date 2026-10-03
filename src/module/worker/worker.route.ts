@@ -17,9 +17,7 @@ router.get(
 router.patch(
 	"/me",
 	verifyAuth(Role.PLUMBER, Role.ELECTRICIAN),
-	validateRequest(
-		WorkerValidations.UpdateWorkerProfileZodSchema,
-	),
+	validateRequest(WorkerValidations.UpdateWorkerProfileZodSchema),
 	WorkerControllers.updateMyWorkerProfile,
 );
 
@@ -44,9 +42,7 @@ router.patch(
 router.patch(
 	"/assigned-services/:id/reject",
 	verifyAuth(Role.PLUMBER, Role.ELECTRICIAN),
-	validateRequest(
-		WorkerValidations.RejectServiceRequestZodSchema,
-	),
+	validateRequest(WorkerValidations.RejectServiceRequestZodSchema),
 	WorkerControllers.rejectServiceRequest,
 );
 

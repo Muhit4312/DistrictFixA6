@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../utils/catchAsync";
-import z from "zod";
+import type z from "zod";
 
 export const validateRequest = (zodSchema: z.ZodObject) => {
 	return catchAsync((req: Request, res: Response, next: NextFunction) => {
@@ -10,9 +10,11 @@ export const validateRequest = (zodSchema: z.ZodObject) => {
 		if (!result.success) {
 			console.log(result.error);
 			console.log(result.error.issues);
-			throw new Error(result.error.issues[0]?.message || "Invalid request data");
+			throw new Error(
+				result.error.issues[0]?.message || "Invalid request data",
+			);
 		}
 		req.body = result.data;
 		next();
-	}); 
+	});
 };

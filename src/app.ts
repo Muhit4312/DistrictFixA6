@@ -42,33 +42,18 @@ app.use("/api/v1/district", DistrictRoutes);
 app.use("/api/v1/service-holder-applicaitons", ServiceHolderApplicationRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/service-holder", ServiceHolderRoutes);
-app.use("/api/v1/worker-applications",WorkerApplicationRoutes);
-app.use("/api/v1/worker",WorkerRoutes);
-app.use("/api/v1/payment",PaymentRoutes);
+app.use("/api/v1/worker-applications", WorkerApplicationRoutes);
+app.use("/api/v1/worker", WorkerRoutes);
+app.use("/api/v1/payment", PaymentRoutes);
 
-app.get("/test", async (req: Request, res: Response) => {
-	try {
 
-		const grantIdTokenResult = await getBkashIdToken()
-		
-		
-		res.status(httpStatus.OK).json({
-		success: true,
-		message: "Welcome to PH Healthcare System Backend",
-		data: grantIdTokenResult
-	});
-	} catch (error) {
-		console.log({error});
-	}
-});
 
 app.get("/", async (req: Request, res: Response) => {
-	const grantIdTokenResult = await getBkashIdToken()
-	console.log({grantIdTokenResult});
+
 	res.status(httpStatus.OK).json({
 		success: true,
 		message: "Welcome DistrictFix Backend",
-		data: grantIdTokenResult
+		data: null,
 	});
 });
 

@@ -8,7 +8,7 @@
   "main": "server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsup",
     "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format:check": "npx @biomejs/biome format ./src",
@@ -44,6 +44,7 @@
     "nodemailer": "^10.0.10",
     "pg": "^8.23.0",
     "redis": "^6.2.1",
+    "tsup": "^8.5.1",
     "zod": "^4.6.5"
   }
 }

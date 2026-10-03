@@ -1,5 +1,8 @@
 import z from "zod";
-import { ServiceRequestStatus, ServiceType } from "../../../generated/prisma/enums";
+import {
+	ServiceRequestStatus,
+	ServiceType,
+} from "../../../generated/prisma/enums";
 
 const CreateServiceRequestZodSchema = z.object({
 	serviceType: z.enum(ServiceType),
@@ -90,15 +93,9 @@ const ServiceRequestQueryZodSchema = z.object({
 
 	serviceType: z.enum(ServiceType).optional(),
 
-	page: z
-		.string()
-		.regex(/^\d+$/, "Page must be a valid number")
-		.optional(),
+	page: z.string().regex(/^\d+$/, "Page must be a valid number").optional(),
 
-	limit: z
-		.string()
-		.regex(/^\d+$/, "Limit must be a valid number")
-		.optional(),
+	limit: z.string().regex(/^\d+$/, "Limit must be a valid number").optional(),
 
 	sortBy: z.enum(["createdAt", "serviceName"]).optional(),
 

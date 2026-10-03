@@ -25,7 +25,7 @@ const CustomerRegistrationZodSchema = z.object({
 });
 
 const loginZodSchema = z.object({
-	email : z.email(),
+	email: z.email(),
 	password: z
 		.string("Not a string.")
 		.min(8, "Password must be at least 8 characters")
@@ -33,21 +33,19 @@ const loginZodSchema = z.object({
 		.regex(/[a-z]/, "Password must contain a lowercase letter")
 		.regex(/[0-9]/, "Password must contain a number")
 		.regex(/[^A-Za-z0-9]/, "Password must contain a special character"),
-})
+});
 
 const CustomerVerifyZodSchema = z.object({
-	email : z.email(),
-	otp: z.string().length(6)
-
-})
+	email: z.email(),
+	otp: z.string().length(6),
+});
 
 const forgotPasswordZodSchema = z.object({
-	email : z.email(),
-	
-})
+	email: z.email(),
+});
 
 const resetPasswordZodSchema = z.object({
-	email : z.email(),
+	email: z.email(),
 	newPassword: z
 		.string("Not a string.")
 		.min(8, "Password must be at least 8 characters")
@@ -55,18 +53,13 @@ const resetPasswordZodSchema = z.object({
 		.regex(/[a-z]/, "Password must contain a lowercase letter")
 		.regex(/[0-9]/, "Password must contain a number")
 		.regex(/[^A-Za-z0-9]/, "Password must contain a special character"),
-	otp: z.string().length(6)
-
-})
+	otp: z.string().length(6),
+});
 
 export const UserValidation = {
 	CustomerRegistrationZodSchema,
-    loginZodSchema,
-    CustomerVerifyZodSchema,
+	loginZodSchema,
+	CustomerVerifyZodSchema,
 	forgotPasswordZodSchema,
-	resetPasswordZodSchema
+	resetPasswordZodSchema,
 };
-
-
-
-

@@ -16,9 +16,7 @@ router.get(
 router.patch(
 	"/me",
 	verifyAuth(Role.SERVICE_HOLDER),
-	validateRequest(
-		ServiceHolderValidations.UpdateServiceHolderZodSchema,
-	),
+	validateRequest(ServiceHolderValidations.UpdateServiceHolderZodSchema),
 	ServiceHolderControllers.updateMyServiceHolder,
 );
 router.get(
@@ -41,39 +39,36 @@ router.get(
 router.get(
 	"/worker-appliction/:id",
 	verifyAuth(Role.SERVICE_HOLDER),
-	ServiceHolderControllers.getWorkerApplicationById
+	ServiceHolderControllers.getWorkerApplicationById,
 );
 router.patch(
 	"/worker-appliction/:id/approve",
 	verifyAuth(Role.SERVICE_HOLDER),
-	ServiceHolderControllers.approveWorkerApplication
+	ServiceHolderControllers.approveWorkerApplication,
 );
 router.patch(
 	"/worker-appliction/:id/reject",
 	verifyAuth(Role.SERVICE_HOLDER),
-	ServiceHolderControllers.rejectWorkerApplication
+	ServiceHolderControllers.rejectWorkerApplication,
 );
 
 router.get(
 	"/workers",
 	verifyAuth(Role.SERVICE_HOLDER),
-	ServiceHolderControllers.getMyDistrictWorkers
+	ServiceHolderControllers.getMyDistrictWorkers,
 );
 
 router.get(
 	"/workers/:id",
 	verifyAuth(Role.SERVICE_HOLDER),
-	ServiceHolderControllers.getMyDistrictSingleWorker
+	ServiceHolderControllers.getMyDistrictSingleWorker,
 );
 
 router.patch(
 	"/service-requests/:id/assign",
 	verifyAuth(Role.SERVICE_HOLDER),
-	validateRequest(
-		ServiceHolderValidations.AssignServiceRequestZodSchema,
-	),
+	validateRequest(ServiceHolderValidations.AssignServiceRequestZodSchema),
 	ServiceHolderControllers.assignServiceRequest,
 );
 
 export const ServiceHolderRoutes = router;
-

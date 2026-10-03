@@ -51,9 +51,7 @@ const UpdateDistrictZodSchema = z
 		message: "At least one field is required for update",
 	});
 
-
-
 export const DistrictValidation = {
 	CreateDistrictZodSchema,
-	UpdateDistrictZodSchema
+	UpdateDistrictZodSchema,
 };

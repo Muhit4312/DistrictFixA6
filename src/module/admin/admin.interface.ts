@@ -1,6 +1,4 @@
-import {
-	ApplicationStatus,
-} from "../../../generated/prisma/enums";
+import type { ApplicationStatus } from "../../../generated/prisma/enums";
 
 export interface IRejectServiceHolderApplicationPayload {
 	rejectionReason: string;

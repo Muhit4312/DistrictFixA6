@@ -3,7 +3,13 @@ import config from "./config/env.config";
 import { transporter } from "./lib/nodemailer";
 import { prisma } from "./lib/prisma";
 import { RadisClient } from "./lib/radis";
-import { seedAdmin, seedElectrician, seedPlumber, seedServiceHolder, seedSuperAdmin } from "./utils/seed";
+import {
+	seedAdmin,
+	seedElectrician,
+	seedPlumber,
+	seedServiceHolder,
+	seedSuperAdmin,
+} from "./utils/seed";
 
 const main = async () => {
 	try {

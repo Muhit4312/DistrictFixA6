@@ -1,10 +1,9 @@
-import { WorkerType } from "../../../generated/prisma/enums";
+import type { WorkerType } from "../../../generated/prisma/enums";
 
 export interface IUpdateServiceHolderPayload {
 	businessName?: string;
 	phone?: string;
 	address?: string;
-
 }
 
 export interface IRejectWorkerApplicationPayload {

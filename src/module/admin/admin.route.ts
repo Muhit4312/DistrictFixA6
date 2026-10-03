@@ -5,7 +5,6 @@ import { ServiceHolderApplicationControllers } from "./admin.controller";
 import { validateRequest } from "../../middleware/zodValidationRequest";
 import { ServiceHolderApplicationValidations } from "./admin.validation";
 
-
 const router = Router();
 
 router.get(
@@ -16,11 +15,7 @@ router.get(
 
 router.get(
 	"/service-holder-applications/:id",
-	verifyAuth(
-		Role.CUSTOMER,
-		Role.ADMIN,
-		Role.SUPER_ADMIN,
-	),
+	verifyAuth(Role.CUSTOMER, Role.ADMIN, Role.SUPER_ADMIN),
 	ServiceHolderApplicationControllers.getSingleApplication,
 );
 

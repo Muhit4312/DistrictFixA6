@@ -7,8 +7,6 @@ import { validateRequest } from "../../middleware/zodValidationRequest";
 
 const router = Router();
 
-
-
 router.post(
 	"/apply",
 	verifyAuth(Role.CUSTOMER),
@@ -44,9 +42,5 @@ router.delete(
 	verifyAuth(Role.CUSTOMER),
 	WorkerApplicationControllers.deleteMyWorkerApplication,
 );
-
-
-
-
 
 export const WorkerApplicationRoutes = router;

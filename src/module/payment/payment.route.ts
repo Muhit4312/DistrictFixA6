@@ -17,9 +17,6 @@ router.post(
 // 	PaymentControllers.executePayment,
 // );
 
-router.get(
-	"/service-request/callback",
-	PaymentControllers.paymentCallback,
-);
+router.get("/service-request/callback", PaymentControllers.paymentCallback);
 
 export const PaymentRoutes = router;

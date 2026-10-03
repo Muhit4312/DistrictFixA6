@@ -1,4 +1,4 @@
-import { Role } from "../../../generated/prisma/enums";
+import type { Role } from "../../../generated/prisma/enums";
 
 export interface IRequestUser {
 	userId: string;
@@ -7,7 +7,7 @@ export interface IRequestUser {
 	role: Role;
 }
 
- export interface IBkashCallbackQuery {
+export interface IBkashCallbackQuery {
 	paymentID?: string;
 	status?: string;
 	signature?: string;

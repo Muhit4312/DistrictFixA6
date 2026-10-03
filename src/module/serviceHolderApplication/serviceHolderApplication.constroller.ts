@@ -1,20 +1,15 @@
-import { Request, Response } from "express";
-import httpStatus from "http-status"
+import type { Request, Response } from "express";
+import httpStatus from "http-status";
 
 import { sendResponse } from "../../utils/sendResponse";
 import { ServiceHolderApplicationServices } from "./serviceHolderApplication.service";
 import { ICreateServiceHolderApplicationPayload } from "./serviceHolderApplication.interface";
 
-
-const createApplication = async (
-	req: Request,
-	res: Response,
-) => {
-	const result =
-		await ServiceHolderApplicationServices.createApplication(
-			req.body,
-			req.user.userId,
-		);
+const createApplication = async (req: Request, res: Response) => {
+	const result = await ServiceHolderApplicationServices.createApplication(
+		req.body,
+		req.user.userId,
+	);
 
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
@@ -24,14 +19,10 @@ const createApplication = async (
 	});
 };
 
-const getMyApplications = async (
-	req: Request,
-	res: Response,
-) => {
-	const result =
-		await ServiceHolderApplicationServices.getMyApplications(
-			req.user.userId,
-		);
+const getMyApplications = async (req: Request, res: Response) => {
+	const result = await ServiceHolderApplicationServices.getMyApplications(
+		req.user.userId,
+	);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -41,18 +32,12 @@ const getMyApplications = async (
 	});
 };
 
-
-
-const getSingleApplication = async (
-	req: Request,
-	res: Response,
-) => {
-	const result =
-		await ServiceHolderApplicationServices.getSingleApplication(
-			req.params.id as string,
-			req.user.userId,
-			req.user.role,
-		);
+const getSingleApplication = async (req: Request, res: Response) => {
+	const result = await ServiceHolderApplicationServices.getSingleApplication(
+		req.params.id as string,
+		req.user.userId,
+		req.user.role,
+	);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -61,7 +46,6 @@ const getSingleApplication = async (
 		data: result,
 	});
 };
-
 
 // 	req: Request,
 // 	res: Response,
@@ -103,5 +87,4 @@ export const ServiceHolderApplicationControllers = {
 	createApplication,
 	getMyApplications,
 	getSingleApplication,
-	
 };

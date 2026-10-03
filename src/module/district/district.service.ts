@@ -1,7 +1,9 @@
-import { DistrictWhereInput } from "../../../generated/prisma/models";
+import type { DistrictWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
-import { ICreateDistrictPayload, IUpdateDistrictPayload } from "./district.interface";
-
+import type {
+	ICreateDistrictPayload,
+	IUpdateDistrictPayload,
+} from "./district.interface";
 
 const createDistrict = async (payload: ICreateDistrictPayload) => {
 	const { name, division, code } = payload;
@@ -39,8 +41,8 @@ const getAllDistricts = async () => {
 			name: "asc",
 		},
 		include: {
-			serviceRequests: true
-		}
+			serviceRequests: true,
+		},
 	});
 
 	return result;
@@ -51,9 +53,9 @@ const getSingleDistrict = async (id: string) => {
 		where: {
 			id,
 		},
-		include:{
-			serviceRequests: true
-		}
+		include: {
+			serviceRequests: true,
+		},
 	});
 
 	if (!result) {
@@ -63,10 +65,7 @@ const getSingleDistrict = async (id: string) => {
 	return result;
 };
 
-const updateDistrict = async (
-	id: string,
-	payload: IUpdateDistrictPayload,
-) => {
+const updateDistrict = async (id: string, payload: IUpdateDistrictPayload) => {
 	const district = await prisma.district.findUnique({
 		where: {
 			id,
@@ -102,17 +101,11 @@ const updateDistrict = async (
 		});
 
 		if (existingDistrict) {
-			if (
-				payload.name &&
-				payload.name === existingDistrict.name
-			) {
+			if (payload.name && payload.name === existingDistrict.name) {
 				throw new Error("District name already exists");
 			}
 
-			if (
-				payload.code &&
-				payload.code === existingDistrict.code
-			) {
+			if (payload.code && payload.code === existingDistrict.code) {
 				throw new Error("District code already exists");
 			}
 		}

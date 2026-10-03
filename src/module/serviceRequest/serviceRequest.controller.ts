@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { ServiceRequestServices } from "./serviceRequest.service";
 import { sendResponse } from "../../utils/sendResponse";
@@ -49,12 +49,7 @@ const getSingleService = async (req: Request, res: Response) => {
 	});
 };
 
-
-
-const updateService = async (
-	req: Request,
-	res: Response,
-) => {
+const updateService = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	const result = await ServiceRequestServices.updateService(
@@ -71,10 +66,7 @@ const updateService = async (
 	});
 };
 
-const cancelService = async (
-	req: Request,
-	res: Response,
-) => {
+const cancelService = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	const result = await ServiceRequestServices.cancelService(
@@ -91,16 +83,10 @@ const cancelService = async (
 	});
 };
 
-const deleteService = async (
-	req: Request,
-	res: Response,
-) => {
+const deleteService = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	await ServiceRequestServices.deleteService(
-		id as string,
-		req.user.id,
-	);
+	await ServiceRequestServices.deleteService(id as string, req.user.id);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

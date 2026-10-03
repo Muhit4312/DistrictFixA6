@@ -23,12 +23,9 @@ router.get(
 
 router.get(
 	"/:id",
-	verifyAuth(
-		Role.CUSTOMER,
-	),
+	verifyAuth(Role.CUSTOMER),
 	ServiceRequestControllers.getSingleService,
 );
-
 
 router.patch(
 	"/:id",
@@ -37,14 +34,12 @@ router.patch(
 	ServiceRequestControllers.updateService,
 );
 
-
 router.patch(
 	"/:id/cancel",
 	verifyAuth(Role.CUSTOMER),
 	validateRequest(ServiceRequestValidation.CancelServiceRequestZodSchema),
 	ServiceRequestControllers.cancelService,
 );
-
 
 router.delete(
 	"/:id",

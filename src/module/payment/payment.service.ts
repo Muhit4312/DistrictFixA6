@@ -1,46 +1,37 @@
-import { JwtPayload } from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
 import config from "../../config/env.config";
 import { getBkashIdToken } from "../../lib/bkash";
 import { prisma } from "../../lib/prisma";
-import { IBkashCallbackQuery, IRequestUser } from "./payment.interface";
+import { type IBkashCallbackQuery, IRequestUser } from "./payment.interface";
 import { PaymentMethod, PaymentStatus } from "../../../generated/prisma/enums";
-import { Payment } from "../../../generated/prisma/client";
+import type { Payment } from "../../../generated/prisma/client";
 
-const createPayment = async (
-	serviceRequestId: string,
-	user: JwtPayload,
-) => {
-	const serviceRequest =
-		await prisma.serviceRequest.findFirst({
-			where: {
-				id: serviceRequestId,
-				customerId: user.userId,
-				deletedAt: null,
-			},
-		});
+const createPayment = async (serviceRequestId: string, user: JwtPayload) => {
+	const serviceRequest = await prisma.serviceRequest.findFirst({
+		where: {
+			id: serviceRequestId,
+			customerId: user.userId,
+			deletedAt: null,
+		},
+	});
 
 	if (!serviceRequest) {
 		throw new Error("Service request not found");
 	}
 
 	if (serviceRequest.status !== "COMPLETED") {
-		throw new Error(
-			"Payment is only available for completed service requests",
-		);
+		throw new Error("Payment is only available for completed service requests");
 	}
 
 	if (!serviceRequest.serviceCharge) {
-		throw new Error(
-			"Service charge has not been determined yet",
-		);
+		throw new Error("Service charge has not been determined yet");
 	}
 
-	const existingPayment =
-		await prisma.payment.findUnique({
-			where: {
-				serviceRequestId: serviceRequest.id,
-			},
-		});
+	const existingPayment = await prisma.payment.findUnique({
+		where: {
+			serviceRequestId: serviceRequest.id,
+		},
+	});
 
 	if (existingPayment) {
 		if (existingPayment.status === PaymentStatus.COMPLETED) {
@@ -51,15 +42,13 @@ const createPayment = async (
 			if (existingPayment.bkashUrl) {
 				return {
 					paymentId: existingPayment.id,
-					bkashPaymentId:
-						existingPayment.bkashPaymentId,
+					bkashPaymentId: existingPayment.bkashPaymentId,
 					paymentUrl: existingPayment.bkashUrl,
 				};
 			}
 
 			throw new Error("Payment is already in progress");
 		}
-
 	}
 
 	const bkashIdToken = await getBkashIdToken();
@@ -68,8 +57,7 @@ const createPayment = async (
 		throw new Error("No Bkash Access Token found");
 	}
 
-	const merchantInvoiceNumber =
-		`INV-${serviceRequest.id}-${Date.now()}`;
+	const merchantInvoiceNumber = `INV-${serviceRequest.id}-${Date.now()}`;
 
 	const paymentResponse = await fetch(
 		`${config.bkash_base_url}/tokenized/checkout/create`,
@@ -84,10 +72,8 @@ const createPayment = async (
 			body: JSON.stringify({
 				mode: "0011",
 				payerReference: user.email,
-				callbackURL:
-					`${config.bkash_callbak_url}/payment/service-request/callback`,
-				amount:
-					serviceRequest.serviceCharge.toString(),
+				callbackURL: `${config.bkash_callbak_url}/payment/service-request/callback`,
+				amount: serviceRequest.serviceCharge.toString(),
 				currency: "BDT",
 				intent: "sale",
 				merchantInvoiceNumber,
@@ -97,13 +83,9 @@ const createPayment = async (
 
 	const paymentResponseResult = await paymentResponse.json();
 
-	if (
-		!paymentResponse.ok ||
-		paymentResponseResult.statusCode !== "0000"
-	) {
+	if (!paymentResponse.ok || paymentResponseResult.statusCode !== "0000") {
 		throw new Error(
-			paymentResponseResult?.statusMessage ||
-			"Failed to create bKash payment",
+			paymentResponseResult?.statusMessage || "Failed to create bKash payment",
 		);
 	}
 
@@ -120,15 +102,12 @@ const createPayment = async (
 				status: PaymentStatus.PENDING,
 				paymentMethod: PaymentMethod.BKASH,
 
-				bkashPaymentId:
-					paymentResponseResult.paymentID,
+				bkashPaymentId: paymentResponseResult.paymentID,
 
-				bkashUrl:
-					paymentResponseResult.bkashURL,
+				bkashUrl: paymentResponseResult.bkashURL,
 
 				merchantInvoiceNumber:
-					paymentResponseResult.merchantInvoiceNumber ??
-					merchantInvoiceNumber,
+					paymentResponseResult.merchantInvoiceNumber ?? merchantInvoiceNumber,
 
 				payerReference: user.email,
 
@@ -147,15 +126,12 @@ const createPayment = async (
 				status: PaymentStatus.PENDING,
 				paymentMethod: PaymentMethod.BKASH,
 
-				bkashPaymentId:
-					paymentResponseResult.paymentID,
+				bkashPaymentId: paymentResponseResult.paymentID,
 
-				bkashUrl:
-					paymentResponseResult.bkashURL,
+				bkashUrl: paymentResponseResult.bkashURL,
 
 				merchantInvoiceNumber:
-					paymentResponseResult.merchantInvoiceNumber ??
-					merchantInvoiceNumber,
+					paymentResponseResult.merchantInvoiceNumber ?? merchantInvoiceNumber,
 
 				payerReference: user.email,
 				gatewayResponse: paymentResponseResult,
@@ -173,13 +149,7 @@ const createPayment = async (
 	};
 };
 
-
-
-
-
-const paymentCallback = async (
-	query: IBkashCallbackQuery,
-) => {
+const paymentCallback = async (query: IBkashCallbackQuery) => {
 	const paymentId = query.paymentID;
 
 	if (!paymentId) {
@@ -192,7 +162,6 @@ const paymentCallback = async (
 		throw new Error("Payment status is missing");
 	}
 
-
 	if (status === "cancel") {
 		const payment = await prisma.payment.findUnique({
 			where: {
@@ -200,10 +169,7 @@ const paymentCallback = async (
 			},
 		});
 
-		if (
-			payment &&
-			payment.status !== PaymentStatus.COMPLETED
-		) {
+		if (payment && payment.status !== PaymentStatus.COMPLETED) {
 			await prisma.payment.update({
 				where: {
 					id: payment.id,
@@ -215,8 +181,7 @@ const paymentCallback = async (
 		}
 
 		return {
-			redirectUrl:
-				`${config.frontend_url}/dashboard/payment/cancel?paymentID=${paymentId}`,
+			redirectUrl: `${config.frontend_url}/dashboard/payment/cancel?paymentID=${paymentId}`,
 		};
 	}
 	if (status === "failure") {
@@ -226,10 +191,7 @@ const paymentCallback = async (
 			},
 		});
 
-		if (
-			payment &&
-			payment.status !== PaymentStatus.COMPLETED
-		) {
+		if (payment && payment.status !== PaymentStatus.COMPLETED) {
 			await prisma.payment.update({
 				where: {
 					id: payment.id,
@@ -241,15 +203,13 @@ const paymentCallback = async (
 		}
 
 		return {
-			redirectUrl:
-				`${config.frontend_url}/dashboard/payment/failure?paymentID=${paymentId}`,
+			redirectUrl: `${config.frontend_url}/dashboard/payment/failure?paymentID=${paymentId}`,
 		};
 	}
 
 	if (status !== "success") {
 		return {
-			redirectUrl:
-				`${config.frontend_url}/dashboard/payment?error=failed`,
+			redirectUrl: `${config.frontend_url}/dashboard/payment?error=failed`,
 		};
 	}
 
@@ -275,16 +235,14 @@ const paymentCallback = async (
 		},
 	);
 
-	const executePaymentResult =
-		await executePaymentResponse.json();
+	const executePaymentResult = await executePaymentResponse.json();
 
 	if (
 		!executePaymentResponse.ok ||
 		executePaymentResult.statusCode !== "0000"
 	) {
 		throw new Error(
-			executePaymentResult?.statusMessage ||
-			"Failed to execute bKash payment",
+			executePaymentResult?.statusMessage || "Failed to execute bKash payment",
 		);
 	}
 
@@ -300,8 +258,7 @@ const paymentCallback = async (
 
 	if (payment.status === PaymentStatus.COMPLETED) {
 		return {
-			redirectUrl:
-				`${config.frontend_url}/dashboard/payment/success?paymentID=${paymentId}`,
+			redirectUrl: `${config.frontend_url}/dashboard/payment/success?paymentID=${paymentId}`,
 		};
 	}
 
@@ -311,22 +268,19 @@ const paymentCallback = async (
 		},
 		data: {
 			status: PaymentStatus.COMPLETED,
-			bkashTransactionId:
-				executePaymentResult.trxID,
-			paymentExecuteTime:
-				executePaymentResult.paymentExecuteTime,
+			bkashTransactionId: executePaymentResult.trxID,
+			paymentExecuteTime: executePaymentResult.paymentExecuteTime,
 			paidAt: new Date(),
 			gatewayResponse: executePaymentResult,
 		},
 	});
 
 	return {
-		redirectUrl:
-			`${config.frontend_url}/dashboard/payment/success?paymentID=${paymentId}`,
+		redirectUrl: `${config.frontend_url}/dashboard/payment/success?paymentID=${paymentId}`,
 	};
 };
 
 export const PaymentServices = {
 	createPayment,
-	paymentCallback
+	paymentCallback,
 };

@@ -1,5 +1,8 @@
-import { ServiceRequestStatus, ServiceType, WorkerStatus } from "../../../generated/prisma/enums";
-
+import type {
+	ServiceRequestStatus,
+	ServiceType,
+	WorkerStatus,
+} from "../../../generated/prisma/enums";
 
 export interface IUpdateWorkerProfilePayload {
 	businessName?: string;
