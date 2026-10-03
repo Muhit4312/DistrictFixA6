@@ -9,6 +9,7 @@ model Payment {
 
     bkashPaymentId        String? @unique
     bkashTransactionId    String? @unique
+    bkashUrl              String?
     merchantInvoiceNumber String? @unique
     payerReference        String?
     paymentExecuteTime String?

@@ -26,16 +26,11 @@ const paymentCallback = catchAsync(
 	async (req: Request, res: Response) => {
 
 
-		const { executePaymentResult, redirectUrl } = await PaymentServices.paymentCallback(req.query);
+		const { redirectUrl } = await PaymentServices.paymentCallback(req.query);
 
-		console.log(executePaymentResult, redirectUrl);
+
 		res.redirect(redirectUrl);
-		// sendResponse(res, {
-		// 	statusCode: httpStatus.CREATED,
-		// 	success: true,
-		// 	message: "Payment created successfully",
-		// 	data: result,
-		// });
+
 	},
 );
 

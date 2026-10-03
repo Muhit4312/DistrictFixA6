@@ -6,3 +6,10 @@ export interface IRequestUser {
 	name: string;
 	role: Role;
 }
+
+ export interface IBkashCallbackQuery {
+	paymentID?: string;
+	status?: string;
+	signature?: string;
+	apiVersion?: string;
+}

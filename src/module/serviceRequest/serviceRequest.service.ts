@@ -150,6 +150,7 @@ const getMyServices = async (query: IServiceRequestQuery, userId: string) => {
 
 			include: {
 				district: true,
+				payment: true,
 			},
 		}),
 
@@ -178,6 +179,7 @@ const getSingleService = async (id: string, userId: string) => {
 		},
 		include: {
 			district: true,
+			payment: true
 		},
 	});
 
