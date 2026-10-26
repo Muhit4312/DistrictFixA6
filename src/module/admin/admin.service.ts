@@ -5,15 +5,209 @@ import {
 	ServiceHolderStatus,
 	UserStatus,
 } from "../../../generated/prisma/enums";
-import type { ServiceHolderApplicationWhereInput } from "../../../generated/prisma/models";
+import type { ServiceHolderApplicationWhereInput, UserWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 import type {
+	IGetAllUsersQuery,
 	IRejectServiceHolderApplicationPayload,
 	IServiceHolderApplicationQuery,
+	UpdateUserPayload,
+	UpdateUserStatusPayload,
 } from "./admin.interface";
 import { transporter } from "../../lib/nodemailer";
 import config from "../../config/env.config";
 import ejs from "ejs";
+
+const getAllUsers = async (query: IGetAllUsersQuery) => {
+	const page = Math.max(Number(query.page) || 1, 1);
+	const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
+	const skip = (page - 1) * limit;
+
+	const andConditions: UserWhereInput[] = [];
+
+	if (query.searchTerm?.trim()) {
+		const searchTerm = query.searchTerm.trim();
+
+		andConditions.push({
+			OR: [
+				{
+					name: {
+						contains: searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					email: {
+						contains: searchTerm,
+						mode: "insensitive",
+					},
+				}
+
+			],
+		});
+	}
+
+	if (query.role) {
+		andConditions.push({
+			role: query.role,
+		});
+	}
+
+	if (query.status) {
+		andConditions.push({
+			status: query.status,
+		});
+	}
+
+
+	andConditions.push({
+		isDeleted: false,
+		deletedAt: null,
+	});
+
+	const whereCondition: UserWhereInput =
+		andConditions.length > 0
+			? { AND: andConditions }
+			: {};
+
+	const [users, totalUsers] = await Promise.all([
+		prisma.user.findMany({
+			where: whereCondition,
+			skip,
+			take: limit,
+			orderBy: {
+				createdAt: query.sortOrder === "asc" ? "asc" : "desc",
+			},
+			omit: {
+				password: true,
+			},
+		}),
+		prisma.user.count({
+			where: whereCondition,
+		}),
+	]);
+
+	return {
+		data: users,
+		meta: {
+			page,
+			limit,
+			total: totalUsers,
+			totalPages: Math.ceil(totalUsers / limit),
+		},
+	};
+};
+
+const getSingleUser = async (id: string) => {
+	const user = await prisma.user.findFirst({
+		where: {
+			id,
+			isDeleted: false,
+			deletedAt: null,
+		},
+		omit: {
+			password: true,
+		},
+	});
+
+	if (!user) {
+		throw new Error("User not found");
+	}
+
+	return user;
+};
+
+
+
+
+const updateUser = async (id: string, payload: UpdateUserPayload) => {
+	const data: UpdateUserPayload = {};
+
+	if (payload.name !== undefined) {
+		if (!payload.name.trim()) {
+			throw new Error("Name cannot be empty");
+		}
+
+		data.name = payload.name.trim();
+	}
+
+	if (payload.phone !== undefined) {
+		data.phone = payload.phone;
+	}
+
+	if (Object.keys(data).length === 0) {
+		throw new Error("Provide at least one field to update");
+	}
+
+	const existingUser = await prisma.user.findFirst({
+		where: {
+			id,
+			isDeleted: false,
+			deletedAt: null,
+		},
+	});
+
+	if (!existingUser) {
+		throw new Error("User not found");
+	}
+
+	return prisma.user.update({
+		where: { id },
+		data,
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			phone: true,
+			role: true,
+			status: true,
+			emailVerified: true,
+			imageUrl: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	});
+};
+
+const updateUserStatus = async (
+	id: string,
+	payload: UpdateUserStatusPayload,
+) => {
+	if (!["ACTIVE", "BLOCKED"].includes(payload.status)) {
+		throw new Error("Status must be ACTIVE or BLOCKED");
+	}
+
+	const existingUser = await prisma.user.findFirst({
+		where: {
+			id,
+			isDeleted: false,
+			deletedAt: null,
+		},
+	});
+
+	if (!existingUser) {
+		throw new Error("User not found");
+	}
+
+	if (existingUser.role === "SUPER_ADMIN") {
+		throw new Error("Super Admin status cannot be changed");
+	}
+
+	return prisma.user.update({
+		where: { id },
+		data: {
+			status: payload.status,
+		},
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			role: true,
+			status: true,
+			updatedAt: true,
+		},
+	});
+};
 
 const getAllApplications = async (query: IServiceHolderApplicationQuery) => {
 	const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
@@ -54,6 +248,11 @@ const getAllApplications = async (query: IServiceHolderApplicationQuery) => {
 			status: query.status,
 		});
 	}
+	if (query.status) {
+		andConditions.push({
+			status: query.status,
+		});
+	}
 
 	if (query.districtId) {
 		andConditions.push({
@@ -64,8 +263,8 @@ const getAllApplications = async (query: IServiceHolderApplicationQuery) => {
 	const whereCondition =
 		andConditions.length > 0
 			? {
-					AND: andConditions,
-				}
+				AND: andConditions,
+			}
 			: {};
 
 	const [applications, totalApplications] = await Promise.all([
@@ -358,9 +557,13 @@ const rejectApplication = async (
 	return rejectedApplication;
 };
 
-export const ServiceHolderApplicationServices = {
+export const AdminServices = {
 	getAllApplications,
 	getSingleApplication,
 	approveApplication,
 	rejectApplication,
+	getAllUsers,
+	getSingleUser,
+	updateUser,
+	updateUserStatus
 };

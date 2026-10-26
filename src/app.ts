@@ -19,6 +19,7 @@ import { WorkerApplicationRoutes } from "./module/workerApplication/workerApplic
 import { WorkerRoutes } from "./module/worker/worker.route";
 import { getBkashIdToken } from "./lib/bkash";
 import { PaymentRoutes } from "./module/payment/payment.route";
+import { AiRoutes } from "./module/ai/ai.route";
 
 const app: Application = express();
 
@@ -45,6 +46,7 @@ app.use("/api/v1/service-holder", ServiceHolderRoutes);
 app.use("/api/v1/worker-applications", WorkerApplicationRoutes);
 app.use("/api/v1/worker", WorkerRoutes);
 app.use("/api/v1/payment", PaymentRoutes);
+app.use("/api/v1/ai", AiRoutes);
 
 
 

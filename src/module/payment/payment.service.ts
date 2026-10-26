@@ -181,7 +181,7 @@ const paymentCallback = async (query: IBkashCallbackQuery) => {
 		}
 
 		return {
-			redirectUrl: `${config.frontend_url}/dashboard/payment/cancel?paymentID=${paymentId}`,
+			redirectUrl: `${config.frontend_url}/dashboard/customer/payment/cancel?paymentID=${paymentId}`,
 		};
 	}
 	if (status === "failure") {
@@ -203,13 +203,13 @@ const paymentCallback = async (query: IBkashCallbackQuery) => {
 		}
 
 		return {
-			redirectUrl: `${config.frontend_url}/dashboard/payment/failure?paymentID=${paymentId}`,
+			redirectUrl: `${config.frontend_url}/dashboard/customer/payment/failure?paymentID=${paymentId}`,
 		};
 	}
 
 	if (status !== "success") {
 		return {
-			redirectUrl: `${config.frontend_url}/dashboard/payment?error=failed`,
+			redirectUrl: `${config.frontend_url}/dashboard/customer/payment/failure?error=failed`,
 		};
 	}
 
@@ -258,7 +258,7 @@ const paymentCallback = async (query: IBkashCallbackQuery) => {
 
 	if (payment.status === PaymentStatus.COMPLETED) {
 		return {
-			redirectUrl: `${config.frontend_url}/dashboard/payment/success?paymentID=${paymentId}`,
+			redirectUrl: `${config.frontend_url}/dashboard/customer/payment/success?paymentID=${paymentId}`,
 		};
 	}
 
@@ -276,7 +276,7 @@ const paymentCallback = async (query: IBkashCallbackQuery) => {
 	});
 
 	return {
-		redirectUrl: `${config.frontend_url}/dashboard/payment/success?paymentID=${paymentId}`,
+		redirectUrl: `${config.frontend_url}/dashboard/customer/payment/success?paymentID=${paymentId}`,
 	};
 };
 

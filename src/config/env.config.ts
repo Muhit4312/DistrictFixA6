@@ -53,6 +53,10 @@ const config = {
 	bkash_app_key: process.env.BKASH_APP_KEY!,
 	bkash_app_secret: process.env.BKASH_APP_SECRET!,
 	bkash_callbak_url: process.env.BKASH_CALLBACK_URL!,
+	openai_api_key: process.env.OPENAI_API_KEY!,
+	openai_model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+	gemini_api_key: process.env.GEMINI_API_KEY!,
+	gemini_model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
 };
 
 export default config;

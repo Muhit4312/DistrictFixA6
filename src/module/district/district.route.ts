@@ -14,6 +14,7 @@ router.post(
 	DistrictController.createDistrict,
 );
 router.get("/", DistrictController.getAllDistricts);
+router.get("/options", DistrictController.getAllDistrictsOptions);
 router.get("/:id", DistrictController.getSingleDistrict);
 router.patch(
 	"/:id",

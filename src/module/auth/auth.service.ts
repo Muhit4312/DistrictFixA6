@@ -289,8 +289,6 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 	const ifCustomerExistWithGoogleAuth = await prisma.user.findUnique({
 		where: {
 			email: googleIdTokenPayload.email,
-			role: Role.CUSTOMER,
-			googleId: googleIdTokenPayload.sub,
 		},
 	});
 

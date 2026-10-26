@@ -47,6 +47,15 @@ const getAllDistricts = async () => {
 
 	return result;
 };
+const getDistrictOptions = async () => {
+	const result = await prisma.district.findMany({
+		orderBy: {
+			name: "asc",
+		}
+	});
+
+	return result;
+};
 
 const getSingleDistrict = async (id: string) => {
 	const result = await prisma.district.findUnique({
@@ -159,4 +168,5 @@ export const DistrictService = {
 	getSingleDistrict,
 	updateDistrict,
 	deleteDistrict,
+	getDistrictOptions
 };

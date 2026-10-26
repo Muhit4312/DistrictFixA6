@@ -24,6 +24,16 @@ const getAllDistricts = async (req: Request, res: Response) => {
 		data: result,
 	});
 };
+const getAllDistrictsOptions = async (req: Request, res: Response) => {
+	const result = await DistrictService.getDistrictOptions();
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "District options retrieved successfully",
+		data: result,
+	});
+};
 
 const getSingleDistrict = async (req: Request, res: Response) => {
 	const { id } = req.params;
@@ -70,4 +80,5 @@ export const DistrictController = {
 	getSingleDistrict,
 	updateDistrict,
 	deleteDistrict,
+	getAllDistrictsOptions
 };

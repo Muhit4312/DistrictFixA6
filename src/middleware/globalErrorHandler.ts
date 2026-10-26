@@ -50,15 +50,10 @@ export const globalErrorHandler = async (
 	}
 
 	res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-		success: false,
-		statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
-		name:
-			config.node_env === "development" ? errorName : "Internal Server Error",
-		message:
-			config.node_env === "development"
-				? errorMessage
-				: "Internal Server Error",
-		error: config.node_env === "development" ? err : undefined,
-		stack: config.node_env === "development" ? err.stack : undefined,
-	});
+        success: false,
+        statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
+        name: errorName,
+        message: errorMessage,
+        error: err.stack
+    })
 };
